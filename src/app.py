@@ -17,7 +17,6 @@ class LoginWindow(QMainWindow):
         self.setWindowFlags(self.windowFlags() | QtCore.Qt.FramelessWindowHint)
         self.bodywindow = None
         self.login_window = None
-        self.cobrar_ticket = None
         icon = QIcon("NOTE3710-removebg-preview.png")  # Reemplaza con la ruta de tu archivo de icono
         self.setWindowIcon(icon)
 
@@ -60,6 +59,7 @@ class Bodywindow(QMainWindow):
         self.adjustToScreen()
         self.login_window = None
         self.body_window = None
+        self.cobrar_ticket = None
         self.list_view = self.findChild(QListView, "lista_de_jugadas")  # Reemplaza "your_list_view" con el nombre de objeto del QListView en Qt Designer
 
         checkbox_names = ["AnguiladiezAM", "AnguilaunaPM", "AnguilaseisPM", "AnguilanuevePM", "CuartetadiezAM", "CuartetaunaPM",
@@ -255,11 +255,16 @@ class Bodywindow(QMainWindow):
             if self.body_window is None:
                 self.body_window = Bodywindow()
             self.body_window.show()
+        if event.key() == Qt.Key_F7:
+            if self.cobrar_ticket is None:
+                self.cobrar_ticket = CobrarTicketWindow()
+            self.cobrar_ticket.show()
 
-class CobraTicketWindow(QMainWindow):
+
+class CobrarTicketWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        uic.loadUi("UI/cobrarticket.ui")
+        uic.loadUi("UI/cobrarticket.ui", self)
 
 
 def ventanta_emergente_def(title, icon, text):
