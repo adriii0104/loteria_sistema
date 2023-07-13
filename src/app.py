@@ -255,6 +255,12 @@ class Bodywindow(QMainWindow):
                 self.body_window = Bodywindow()
             self.body_window.show()
 
+class CobraTicketWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        uic.loadUi("UI/cobrarticket.ui")
+
+
 def ventanta_emergente_def(title, icon, text):
     ventana_emergente = QMessageBox()
     ventana_emergente.setWindowTitle(title)
