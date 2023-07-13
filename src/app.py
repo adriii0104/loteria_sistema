@@ -8,12 +8,12 @@ import re
 class LoginWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        uic.loadUi("inicio.ui", self)
+        uic.loadUi("UI/inicio.ui", self)
         self.Botonlogin.clicked.connect(self.login)
         self.user.returnPressed.connect(self.login)
         self.password.returnPressed.connect(self.login)
         self.setWindowFlags(QtCore.Qt.WindowCloseButtonHint | QtCore.Qt.WindowMinimizeButtonHint)  # Quitar botón de maximizar
-        self.setWindowTitle("Mi Ventana")
+        self.setWindowTitle("")
         self.setWindowFlags(self.windowFlags() | QtCore.Qt.FramelessWindowHint)
         self.bodywindow = None
         self.login_window = None
@@ -54,7 +54,7 @@ class Bodywindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.selected_lotteries = 0
-        uic.loadUi("bodyy.ui", self)
+        uic.loadUi("UI/bodyy.ui", self)
         self.siguiente.clicked.connect(self.calculate)
         self.adjustToScreen()
         self.login_window = None

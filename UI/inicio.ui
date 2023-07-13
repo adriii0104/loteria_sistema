@@ -23,7 +23,7 @@
   </property>
   <property name="styleSheet">
    <string notr="true">*{
-background-image: url(PYXW9466.PNG);
+background-image: url(IMGS/PYXW9466.PNG);
 background-repeat: no-repeat !important;
 background-position: center;
 font-family:&quot;Poppins&quot;,sans serif;
@@ -40,7 +40,7 @@ QLineEdit {
     border-bottom: 1px solid rgb(161, 161, 161) ;
 }
 QMainWindow {
-    icon: url(NOTE3710-removebg-preview.png);
+    icon: url(IMGS/NOTE3710-removebg-preview.png);
 }
 
 QLineEdit:focus {
