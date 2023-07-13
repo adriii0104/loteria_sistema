@@ -47,8 +47,8 @@ color: rgb(102, 102, 102);
    <widget class="QLineEdit" name="numero">
     <property name="geometry">
      <rect>
-      <x>110</x>
-      <y>320</y>
+      <x>60</x>
+      <y>310</y>
       <width>251</width>
       <height>31</height>
      </rect>
@@ -370,8 +370,8 @@ color: rgb(102, 102, 102);
    <widget class="QLabel" name="label_9">
     <property name="geometry">
      <rect>
-      <x>200</x>
-      <y>300</y>
+      <x>150</x>
+      <y>290</y>
       <width>91</width>
       <height>16</height>
      </rect>
@@ -389,8 +389,8 @@ color: rgb(102, 102, 102);
    <widget class="QLabel" name="label_10">
     <property name="geometry">
      <rect>
-      <x>520</x>
-      <y>300</y>
+      <x>470</x>
+      <y>290</y>
       <width>91</width>
       <height>16</height>
      </rect>
@@ -408,16 +408,16 @@ color: rgb(102, 102, 102);
    <widget class="QLabel" name="label_11">
     <property name="geometry">
      <rect>
-      <x>320</x>
+      <x>60</x>
       <y>390</y>
       <width>91</width>
-      <height>16</height>
+      <height>21</height>
      </rect>
     </property>
     <property name="font">
      <font>
       <family>MS Shell Dlg 2</family>
-      <pointsize>10</pointsize>
+      <pointsize>11</pointsize>
      </font>
     </property>
     <property name="styleSheet">
@@ -430,8 +430,8 @@ color: rgb(102, 102, 102);
    <widget class="QPushButton" name="pushButton_9">
     <property name="geometry">
      <rect>
-      <x>790</x>
-      <y>320</y>
+      <x>740</x>
+      <y>310</y>
       <width>161</width>
       <height>31</height>
      </rect>
@@ -449,8 +449,8 @@ color: rgb(102, 102, 102);
    <widget class="QPushButton" name="pushButton_10">
     <property name="geometry">
      <rect>
-      <x>960</x>
-      <y>320</y>
+      <x>920</x>
+      <y>310</y>
       <width>91</width>
       <height>31</height>
      </rect>
@@ -468,8 +468,8 @@ color: rgb(102, 102, 102);
    <widget class="QCheckBox" name="AnguiladiezAM">
     <property name="geometry">
      <rect>
-      <x>70</x>
-      <y>100</y>
+      <x>60</x>
+      <y>110</y>
       <width>151</width>
       <height>31</height>
      </rect>
@@ -489,8 +489,8 @@ color: rgb(102, 102, 102);
    <widget class="QCheckBox" name="RealunaPM">
     <property name="geometry">
      <rect>
-      <x>1190</x>
-      <y>100</y>
+      <x>1180</x>
+      <y>110</y>
       <width>151</width>
       <height>31</height>
      </rect>
@@ -510,8 +510,8 @@ color: rgb(102, 102, 102);
    <widget class="QCheckBox" name="AnguilaseisPM">
     <property name="geometry">
      <rect>
-      <x>390</x>
-      <y>140</y>
+      <x>380</x>
+      <y>150</y>
       <width>151</width>
       <height>31</height>
      </rect>
@@ -531,8 +531,8 @@ color: rgb(102, 102, 102);
    <widget class="QCheckBox" name="AnguilaunaPM">
     <property name="geometry">
      <rect>
-      <x>870</x>
-      <y>100</y>
+      <x>860</x>
+      <y>110</y>
       <width>151</width>
       <height>31</height>
      </rect>
@@ -552,8 +552,8 @@ color: rgb(102, 102, 102);
    <widget class="QCheckBox" name="AnguilanuevePM">
     <property name="geometry">
      <rect>
-      <x>1350</x>
-      <y>140</y>
+      <x>1340</x>
+      <y>150</y>
       <width>151</width>
       <height>31</height>
      </rect>
@@ -573,8 +573,8 @@ color: rgb(102, 102, 102);
    <widget class="QCheckBox" name="GanadosPM">
     <property name="geometry">
      <rect>
-      <x>70</x>
-      <y>140</y>
+      <x>60</x>
+      <y>150</y>
       <width>151</width>
       <height>31</height>
      </rect>
@@ -594,8 +594,8 @@ color: rgb(102, 102, 102);
    <widget class="QCheckBox" name="CuartetadiezAM">
     <property name="geometry">
      <rect>
-      <x>230</x>
-      <y>100</y>
+      <x>220</x>
+      <y>110</y>
       <width>151</width>
       <height>31</height>
      </rect>
@@ -615,8 +615,8 @@ color: rgb(102, 102, 102);
    <widget class="QCheckBox" name="FechaunaPM">
     <property name="geometry">
      <rect>
-      <x>1350</x>
-      <y>100</y>
+      <x>1340</x>
+      <y>110</y>
       <width>151</width>
       <height>31</height>
      </rect>
@@ -636,8 +636,8 @@ color: rgb(102, 102, 102);
    <widget class="QCheckBox" name="CuartetaunaPM">
     <property name="geometry">
      <rect>
-      <x>1030</x>
-      <y>100</y>
+      <x>1020</x>
+      <y>110</y>
       <width>151</width>
       <height>31</height>
      </rect>
@@ -657,8 +657,8 @@ color: rgb(102, 102, 102);
    <widget class="QCheckBox" name="KingsietePM">
     <property name="geometry">
      <rect>
-      <x>710</x>
-      <y>140</y>
+      <x>700</x>
+      <y>150</y>
       <width>151</width>
       <height>31</height>
      </rect>
@@ -678,8 +678,8 @@ color: rgb(102, 102, 102);
    <widget class="QCheckBox" name="CuartetaseisPM">
     <property name="geometry">
      <rect>
-      <x>550</x>
-      <y>140</y>
+      <x>540</x>
+      <y>150</y>
       <width>151</width>
       <height>31</height>
      </rect>
@@ -699,8 +699,8 @@ color: rgb(102, 102, 102);
    <widget class="QCheckBox" name="KingdocePM">
     <property name="geometry">
      <rect>
-      <x>550</x>
-      <y>100</y>
+      <x>540</x>
+      <y>110</y>
       <width>151</width>
       <height>31</height>
      </rect>
@@ -720,8 +720,8 @@ color: rgb(102, 102, 102);
    <widget class="QCheckBox" name="CuartetanuevePM">
     <property name="geometry">
      <rect>
-      <x>70</x>
-      <y>180</y>
+      <x>60</x>
+      <y>190</y>
       <width>151</width>
       <height>31</height>
      </rect>
@@ -741,8 +741,8 @@ color: rgb(102, 102, 102);
    <widget class="QCheckBox" name="PrimeradocePM">
     <property name="geometry">
      <rect>
-      <x>390</x>
-      <y>100</y>
+      <x>380</x>
+      <y>110</y>
       <width>151</width>
       <height>31</height>
      </rect>
@@ -762,8 +762,8 @@ color: rgb(102, 102, 102);
    <widget class="QCheckBox" name="SuertedocePM">
     <property name="geometry">
      <rect>
-      <x>710</x>
-      <y>100</y>
+      <x>700</x>
+      <y>110</y>
       <width>151</width>
       <height>31</height>
      </rect>
@@ -783,8 +783,8 @@ color: rgb(102, 102, 102);
    <widget class="QCheckBox" name="NewdosPM">
     <property name="geometry">
      <rect>
-      <x>230</x>
-      <y>140</y>
+      <x>220</x>
+      <y>150</y>
       <width>151</width>
       <height>31</height>
      </rect>
@@ -804,8 +804,8 @@ color: rgb(102, 102, 102);
    <widget class="QCheckBox" name="LotekasietePM">
     <property name="geometry">
      <rect>
-      <x>870</x>
-      <y>140</y>
+      <x>860</x>
+      <y>150</y>
       <width>151</width>
       <height>31</height>
      </rect>
@@ -825,8 +825,8 @@ color: rgb(102, 102, 102);
    <widget class="QCheckBox" name="NewdiezPM">
     <property name="geometry">
      <rect>
-      <x>390</x>
-      <y>180</y>
+      <x>380</x>
+      <y>190</y>
       <width>151</width>
       <height>31</height>
      </rect>
@@ -846,8 +846,8 @@ color: rgb(102, 102, 102);
    <widget class="QCheckBox" name="FloridanuevePM">
     <property name="geometry">
      <rect>
-      <x>230</x>
-      <y>180</y>
+      <x>220</x>
+      <y>190</y>
       <width>151</width>
       <height>31</height>
      </rect>
@@ -867,8 +867,8 @@ color: rgb(102, 102, 102);
    <widget class="QCheckBox" name="NacionalochoPM">
     <property name="geometry">
      <rect>
-      <x>1030</x>
-      <y>140</y>
+      <x>1020</x>
+      <y>150</y>
       <width>151</width>
       <height>31</height>
      </rect>
@@ -888,8 +888,8 @@ color: rgb(102, 102, 102);
    <widget class="QCheckBox" name="LeidsaochoPM">
     <property name="geometry">
      <rect>
-      <x>1190</x>
-      <y>140</y>
+      <x>1180</x>
+      <y>150</y>
       <width>151</width>
       <height>31</height>
      </rect>
@@ -909,8 +909,8 @@ color: rgb(102, 102, 102);
    <widget class="QLineEdit" name="precio">
     <property name="geometry">
      <rect>
-      <x>410</x>
-      <y>320</y>
+      <x>360</x>
+      <y>310</y>
       <width>251</width>
       <height>31</height>
      </rect>
@@ -946,8 +946,8 @@ color: rgb(102, 102, 102);
    <widget class="QPushButton" name="siguiente">
     <property name="geometry">
      <rect>
-      <x>680</x>
-      <y>320</y>
+      <x>630</x>
+      <y>310</y>
       <width>91</width>
       <height>31</height>
      </rect>
@@ -965,9 +965,9 @@ color: rgb(102, 102, 102);
    <widget class="QListWidget" name="lista_jugadas">
     <property name="geometry">
      <rect>
-      <x>105</x>
+      <x>55</x>
       <y>420</y>
-      <width>481</width>
+      <width>461</width>
       <height>401</height>
      </rect>
     </property>
@@ -975,36 +975,14 @@ color: rgb(102, 102, 102);
    <widget class="QLineEdit" name="total_jugado">
     <property name="geometry">
      <rect>
-      <x>720</x>
-      <y>430</y>
-      <width>231</width>
-      <height>31</height>
+      <x>1060</x>
+      <y>770</y>
+      <width>151</width>
+      <height>21</height>
      </rect>
     </property>
     <property name="readOnly">
      <bool>true</bool>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_12">
-    <property name="geometry">
-     <rect>
-      <x>630</x>
-      <y>440</y>
-      <width>91</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <family>Arial</family>
-      <pointsize>10</pointsize>
-     </font>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">color: rgb(0, 0, 0);</string>
-    </property>
-    <property name="text">
-     <string>Total Jugado:</string>
     </property>
    </widget>
    <widget class="QPushButton" name="pushButton_11">
@@ -1081,6 +1059,60 @@ color: rgb(102, 102, 102);
     </property>
     <property name="text">
      <string>Reiniciar</string>
+    </property>
+   </widget>
+   <widget class="QListWidget" name="lista_jugadas_2">
+    <property name="geometry">
+     <rect>
+      <x>510</x>
+      <y>420</y>
+      <width>481</width>
+      <height>401</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_16">
+    <property name="geometry">
+     <rect>
+      <x>520</x>
+      <y>390</y>
+      <width>91</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>MS Shell Dlg 2</family>
+      <pointsize>11</pointsize>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">color: rgb(102, 102, 102);</string>
+    </property>
+    <property name="text">
+     <string>Monto</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_17">
+    <property name="geometry">
+     <rect>
+      <x>1030</x>
+      <y>770</y>
+      <width>91</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>MS Shell Dlg 2</family>
+      <pointsize>8</pointsize>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">color: rgb(102, 102, 102);</string>
+    </property>
+    <property name="text">
+     <string>Total</string>
     </property>
    </widget>
   </widget>

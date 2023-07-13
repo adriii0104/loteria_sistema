@@ -86,8 +86,13 @@ class Bodywindow(QMainWindow):
 
         totaljugado = self.total_jugado.text()
         #aquí iniciamos diciendo que si  la cantidad de valores que tiene el numero es igual a 4 y la cantidad de valores que tiene el monto es igual o mayor que 1 será un pale
-        
-        if len(numero) == 4 and len(monto) >= 1:
+        if monto != '':
+            if int(monto) <= 0:
+                title = "Error"
+                icon = QMessageBox.Critical
+                text = "El monto es invalido"
+                ventanta_emergente_def(title, icon, text)
+        elif len(numero) == 4 and len(monto) >= 1:
             if self.validar_numero_existente(numero[:6], monto):
                 title = "Error"
                 icon = QMessageBox.Critical
