@@ -17,6 +17,7 @@ class LoginWindow(QMainWindow):
         self.setWindowFlags(self.windowFlags() | QtCore.Qt.FramelessWindowHint)
         self.bodywindow = None
         self.login_window = None
+        self.cobrar_ticket = None
         icon = QIcon("NOTE3710-removebg-preview.png")  # Reemplaza con la ruta de tu archivo de icono
         self.setWindowIcon(icon)
 
