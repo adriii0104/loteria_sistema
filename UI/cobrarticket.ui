@@ -22,46 +22,60 @@ margin-left:45px;
    <widget class="QLabel" name="label">
     <property name="geometry">
      <rect>
-      <x>220</x>
-      <y>30</y>
+      <x>240</x>
+      <y>80</y>
       <width>121</width>
       <height>31</height>
      </rect>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>15</pointsize>
+     </font>
+    </property>
     <property name="styleSheet">
-     <string notr="true">font: 14pt &quot;MS Shell Dlg 2&quot;;</string>
+     <string notr="true"/>
     </property>
     <property name="text">
-     <string>Cobrar Ticket</string>
+     <string>Verificar</string>
     </property>
    </widget>
    <widget class="QLineEdit" name="escanear_ticket">
     <property name="geometry">
      <rect>
       <x>90</x>
-      <y>150</y>
+      <y>160</y>
       <width>381</width>
       <height>31</height>
      </rect>
     </property>
     <property name="placeholderText">
-     <string>ESCANEAR TICKET</string>
+     <string>VERIFICAR TICKET</string>
     </property>
    </widget>
    <widget class="QPushButton" name="pagar_ticket">
     <property name="geometry">
      <rect>
       <x>140</x>
-      <y>260</y>
+      <y>250</y>
       <width>271</width>
       <height>51</height>
      </rect>
     </property>
+    <property name="font">
+     <font>
+      <family>MS Shell Dlg 2</family>
+      <pointsize>10</pointsize>
+      <weight>50</weight>
+      <italic>false</italic>
+      <bold>false</bold>
+     </font>
+    </property>
     <property name="styleSheet">
-     <string notr="true">font: 13pt &quot;MS Shell Dlg 2&quot;;</string>
+     <string notr="true"/>
     </property>
     <property name="text">
-     <string>Pagar Ticket</string>
+     <string>Verificar Ticket</string>
     </property>
    </widget>
   </widget>
