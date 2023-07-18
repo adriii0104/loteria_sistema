@@ -1,10 +1,13 @@
 from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox, QCheckBox, QDesktopWidget, QListView, QListWidgetItem
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QIcon, QPainter, QFont
 from PyQt5 import uic, QtCore
 from PyQt5.QtCore import Qt
 import sys
 import re
 import mysql.connector
+from drawticket import generar_recibo
+import uuid
+from datetime import datetime
 
 conexion = mysql.connector.connect(
     host = 'localhost',
@@ -12,20 +15,19 @@ conexion = mysql.connector.connect(
     password = '',
     db = 'lotteria_genuine'
 )
-
-
-
-
-
-
-
+conexion2 = mysql.connector.connect(
+    host = 'localhost',
+    user = 'root',
+    password = '',
+    db = 'resultados'
+)
 
 class LoginWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         uic.loadUi("UI/inicio.ui", self)
         self.Botonlogin.clicked.connect(self.login)
-        self.user.returnPressed.connect(self.login)
+        self.user.returnPressed.connect(self.focus)
         self.password.returnPressed.connect(self.login)
         self.setWindowFlags(QtCore.Qt.WindowCloseButtonHint | QtCore.Qt.WindowMinimizeButtonHint)  # Quitar botón de maximizar
         self.setWindowTitle("BFS SP#01")
@@ -34,6 +36,9 @@ class LoginWindow(QMainWindow):
         self.login_window = None
         icon = QIcon("NOTE3710-removebg-preview.png")  # Reemplaza con la ruta de tu archivo de icono
         self.setWindowIcon(icon)
+
+    def focus(self):
+        self.password.setFocus()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Escape:
@@ -46,6 +51,7 @@ class LoginWindow(QMainWindow):
 
     def login(self):
         usuario = self.user.text()
+        usuario.lower()
         password = self.password.text()
         cursor = conexion.cursor()
         cursor.execute("SELECT * FROM auth WHERE username = %s", (usuario, ))
@@ -100,15 +106,13 @@ class Bodywindow(QMainWindow):
         self.cobrar_ticket = None
         self.list_view = self.findChild(QListView, "lista_de_jugadas")  # Reemplaza "your_list_view" con el nombre de objeto del QListView en Qt Designer
 
-        checkbox_names = ["AnguiladiezAM", "AnguilaunaPM", "AnguilaseisPM", "AnguilanuevePM", "CuartetadiezAM", "CuartetaunaPM",
-                          "CuartetaseisPM", "CuartetanuevePM", "FechaunaPM", "FloridanuevePM", "GanadosPM", "KingdocePM",
-                          "KingsietePM", "LeidsaochoPM", "LotekasietePM", "NacionalochoPM", "NewdiezPM", "NewdosPM",
-                          "PrimeradocePM", "RealunaPM", "SuertedocePM"]
 
+        
         for name in checkbox_names:
             checkbox = self.findChild(QCheckBox, name)
             if checkbox:
                 checkbox.stateChanged.connect(self.checkbox_state_changed)
+
 
     def calculate(self):
         numero = self.numero.text()
@@ -143,8 +147,13 @@ class Bodywindow(QMainWindow):
                     ventanta_emergente_def(title, icon, text)
                 else:
                     item_text = f"{numero}"
+                    item_primero = numero[:2]
+                    item_segundo = numero[2:4]
+                    jugada_total = item_primero + '-' + item_segundo + "Palé"
+                    monto.format()
+                    
                     item_text1 = f"{monto}"
-                    item = QListWidgetItem(item_text)
+                    item = QListWidgetItem(jugada_total)
                     item1 = QListWidgetItem(item_text1)
                     self.lista_jugadas.addItem(item)
                     self.lista_montos.addItem(item1)
@@ -187,8 +196,10 @@ class Bodywindow(QMainWindow):
                     self.numero.setFocus()
                     ventanta_emergente_def(title, icon, text)
                 else:
-                    item_text1 = f"{monto}"
-                    item_text = f"{primer_valor}"
+                    number_for_process = int(monto)
+                    numero_formateado = "{:,.2f}".format(number_for_process)
+                    item_text1 = f"{numero_formateado}"
+                    item_text = f"{primer_valor} (Quiniela)"
                     item1 = QListWidgetItem(item_text1)
                     item = QListWidgetItem(item_text)
                     self.lista_jugadas.addItem(item)
@@ -197,20 +208,20 @@ class Bodywindow(QMainWindow):
                     self.amount.setText('')
                     self.check_balance(monto)
                     if totaljugado != '':
-                        totalhoy = int(totaljugado)
+                        totalhoy = float(totaljugado)
                     else:
                         totalhoy = 0
                     if totalhoy <= 0:
                         if self.selected_lotteries <= 0:
                             self.total_jugado.setText(str(0))
                         else:
-                            totaltoday = int(monto) * int(self.selected_lotteries)
+                            totaltoday = float(monto) * float(self.selected_lotteries)
                             self.total_jugado.setText(str(totaltoday))
                     else:
                         if self.selected_lotteries <= 0:
                             pass
                         else:
-                            totaltoday = int(monto) * int(self.selected_lotteries) + int(totalhoy)
+                            totaltoday = float(monto) * float(self.selected_lotteries) + float(totalhoy)
                             self.total_jugado.setText(str(totaltoday))
         elif len(numero) == 5 and len(monto) <= 0:
             if self.validar_numero_existente(numero[0:3], monto):
@@ -230,8 +241,11 @@ class Bodywindow(QMainWindow):
                     self.numero.setFocus()
                     ventanta_emergente_def(title, icon, text)
                 else:
-                    item_text = f"{primer_valor}"
-                    item_text1 = f"{monto}"
+                    number_for_process = int(monto)
+                    numero_formateado = "{:,.2f}".format(number_for_process)
+                    item_text = f"{primer_valor} (Quiniela)"
+                    monto.format()
+                    item_text1 = f"{numero_formateado}"
                     item1 = QListWidgetItem(item_text1)
                     item = QListWidgetItem(item_text)
                     self.lista_jugadas.addItem(item)
@@ -274,8 +288,14 @@ class Bodywindow(QMainWindow):
                     ventanta_emergente_def(title, icon, text)
                 else:
                     item_text = f"{numero}"
-                    item_text1 = f"{monto}"
-                    item = QListWidgetItem(item_text)
+                    primera_parte = numero[:2]
+                    segunda_parte = numero[2:4]
+                    tercera_parte = numero[4:6]
+                    jugada_final = primera_parte + "-" + segunda_parte + "-" + tercera_parte + " (Tripleta)"
+                    number_for_process = int(monto)
+                    numero_formateado = "{:,.2f}".format(number_for_process)
+                    item_text1 = f"{numero_formateado}"
+                    item = QListWidgetItem(jugada_final)
                     item1 = QListWidgetItem(item_text1)
                     self.lista_jugadas.addItem(item)
                     self.lista_montos.addItem(item1)
@@ -310,7 +330,7 @@ class Bodywindow(QMainWindow):
             else:
                 primer_valor = str(numero[0:2])
                 segundo_valor = str(numero[2:4])
-                total = primer_valor + segundo_valor
+                total = primer_valor + "-" + segundo_valor
                 monto = numero[4:20]
                 if int(monto) <= 0:
                     title = "Error"
@@ -321,8 +341,10 @@ class Bodywindow(QMainWindow):
                     self.numero.setFocus()
                     ventanta_emergente_def(title, icon, text)
                 else:
-                    item_text = f"{total}"
-                    item_text1 = f"{monto}"
+                    item_text = f"{total} (Palé)"
+                    number_for_process = int(monto)
+                    numero_formateado = "{:,.2f}".format(number_for_process)
+                    item_text1 = f"{numero_formateado}"
                     item = QListWidgetItem(item_text)
                     item1 = QListWidgetItem(item_text1)
                     self.lista_montos.addItem(item1)
@@ -358,7 +380,7 @@ class Bodywindow(QMainWindow):
             else:
                 primer_valor = str(numero[0:2])
                 segundo_valor = str(numero[2:4])
-                total = primer_valor + segundo_valor
+                total = primer_valor + "-" + segundo_valor
                 monto = numero[4:6]
                 if int(monto) <= 0:
                     title = "Error"
@@ -369,8 +391,10 @@ class Bodywindow(QMainWindow):
                     self.numero.setFocus()
                     ventanta_emergente_def(title, icon, text)
                 else:
-                    item_text = f"{total}"
-                    item_text1 = f"{monto}"
+                    item_text = f"{total} (Palé)"
+                    number_for_process = int(monto)
+                    numero_formateado = "{:,.2f}".format(number_for_process)
+                    item_text1 = f"{numero_formateado}"
                     item = QListWidgetItem(item_text)
                     item1 = QListWidgetItem(item_text1)
                     self.lista_montos.addItem(item1)
@@ -380,20 +404,20 @@ class Bodywindow(QMainWindow):
                     self.numero.setFocus()
                     self.check_balance(monto)
                     if totaljugado != '':
-                        totalhoy = int(totaljugado)
+                        totalhoy = float(totaljugado)
                     else:
                         totalhoy = 0
                     if totalhoy <= 0:
                         if self.selected_lotteries <= 0:
                             self.total_jugado.setText(str(0))
                         else:
-                            totaltoday = int(monto) * int(self.selected_lotteries)
+                            totaltoday = float(monto) * float(self.selected_lotteries)
                             self.total_jugado.setText(str(totaltoday))
                     else:
                         if self.selected_lotteries <= 0:
                             pass
                         else:
-                            totaltoday = int(monto) * int(self.selected_lotteries) + int(totalhoy)
+                            totaltoday = float(monto) * float(self.selected_lotteries) + float(totalhoy)
                             self.total_jugado.setText(str(totaltoday))
         elif len(numero) <= 2 and len(monto) < 1:
             title = "Error"
@@ -418,7 +442,9 @@ class Bodywindow(QMainWindow):
                     self.numero.setFocus()
                     ventanta_emergente_def(title, icon, text)
                 else:
-                    item_text = f"{numero}"
+                    item_text = f"{numero} (Quiniela)"
+                    number_for_process = int(monto)
+                    numero_formateado = "{:,.2f}".format(number_for_process)
                     item_text1 = f"{monto}"
                     item = QListWidgetItem(item_text)
                     item1 = QListWidgetItem(item_text1)
@@ -477,6 +503,7 @@ class Bodywindow(QMainWindow):
             self.total_una_loteria.setText('0')
             self.total_jugado.setText('0')
 
+
     def checkbox_state_changed(self, state):
         checkbox = self.sender()
         if state == QtCore.Qt.Checked:
@@ -485,29 +512,36 @@ class Bodywindow(QMainWindow):
             for i in range(self.lista_montos.count()):
                 item = self.lista_montos.item(i)
                 texto = item.text()
-                numero = int(texto)
+                numero = float(texto)
                 total += numero 
+
             total_jugado = self.total_jugado.text()
             if total_jugado:
-                jugado = int(total_jugado)
+                jugado = float(total_jugado)
                 total_jugado1 = total * self.selected_lotteries
             else:
                 jugado = 0
                 total_jugado1 = total * self.selected_lotteries
 
             self.total_jugado.setText(str(total_jugado1))
+
+            # Imprimir nombre del checkbox seleccionado
+            checkbox_name = checkbox.text()
+            checkbox_selected_names.append(checkbox_name)
+            keys_list = list(checkbox_names.keys())
+            print(keys_list)
         else:
             self.selected_lotteries -= 1
             total = 0
             for i in range(self.lista_montos.count()):
                 item = self.lista_montos.item(i)
                 texto = item.text()
-                numero = int(texto)
+                numero = float(texto)
                 total += numero
 
             total_jugado = self.total_jugado.text()
             if total_jugado:
-                jugado = int(total_jugado)
+                jugado = float(total_jugado)
                 total_jugado1 = total * self.selected_lotteries
             else:
                 jugado = 0
@@ -515,13 +549,23 @@ class Bodywindow(QMainWindow):
 
             self.total_jugado.setText(str(total_jugado1))
 
+            # Imprimir nombre del checkbox seleccionado
+            checkbox_name = checkbox.text()
+
+
+
     def check_balance(self, monto):
-            total_una_loteria = self.total_una_loteria.text()
-            if total_una_loteria == '':
-                self.total_una_loteria.setText(monto)
-            else:
-                total_loteria = int(self.total_una_loteria.text()) + int(monto)
-                self.total_una_loteria.setText(str(total_loteria))
+        total_una_loteria = self.total_una_loteria.text()
+        if total_una_loteria == '':
+            number_for_process = float(monto)
+            numero_formateado = "{:,.2f}".format(number_for_process)
+            self.total_una_loteria.setText(str(numero_formateado))
+        else:
+            total_loteria = float(self.total_una_loteria.text()) + float(monto)
+            number_for_process = total_loteria
+            numero_formateado = "{:,.2f}".format(number_for_process)
+            self.total_una_loteria.setText(str(numero_formateado))
+
 
     def adjustToScreen(self):
         desktop = QDesktopWidget().availableGeometry()
@@ -549,7 +593,63 @@ class Bodywindow(QMainWindow):
             self.lista_montos.clear()
             self.total_una_loteria.setText('0')
             self.total_jugado.setText('0')
+        if event.key() == Qt.Key_F10:
+                self.imprimir_ticket()
+
+
+    #falta todvia agregarle lo de los numeros, falta todavia integrarle el conteo, todavia hay que pasarlo a imprimir. (pendiente)
+    def imprimir_ticket(self):
+        if len(self.lista_montos) == 0:
+            title = "Error"
+            icon = QMessageBox.Critical
+            text = "Antes de imprimir debes escribir las jugadas."
+            ventanta_emergente_def(title, icon, text)
+        elif self.selected_lotteries == 0:
+            title = "Error"
+            icon = QMessageBox.Critical
+            text = "Debe elegir al menos una loteria."
+            ventanta_emergente_def(title, icon, text)
+        else:
+            chosen_numbers = []
+            amounts = []
+            id = uuid.uuid4()
+            idgen = str(id)
+            idgen = idgen[:10]
+            nuevo = idgen.replace("-", "")
+            ticket = "BFSSP01"
+            idticket = nuevo.upper() + ticket
+            archivo_pdf_azar = nuevo + ".pdf"
+            total_precio = float(self.total_jugado.text())
+
+            for i in range(self.lista_montos.count()):
+                item = self.lista_montos.item(i)
+                amount = item.text()
+                items = self.lista_jugadas.item(i)
+                chosen_number = items.text()
+                added_elements = i + 1
+                chosen_numbers.append(str(chosen_number))
+                amounts.append(str(amount))
+        
+            for checkbox_name in checkbox_selected_names:
+                lotteries_for_database = checkbox_name
+
+                for i in range(len(chosen_numbers)):
+                    item_for_database = self.lista_jugadas.item(i)
+                    item_for_database_text = item_for_database.text()
+                    amount_for_database = self.lista_montos.item(i)
+                    amount_for_database_text = amount_for_database.text()
+                    numeros_con_signo = re.sub(r"[^\d-]", "", item_for_database_text)
+
+                    cursor = conexion.cursor()
+                    cursor.execute("INSERT INTO jugadas VALUES (%s, %s, %s, %s, %s, %s)",
+                                   (idticket, numeros_con_signo, amount_for_database_text, lotteries_for_database, datetime.now().strftime('%d/%m/%Y - %I:%M:%S %p'), "NO"))
+                    cursor.close()
+                    conexion.commit()
+
+            generar_recibo(added_elements, chosen_numbers, amounts, total_precio, archivo_pdf_azar, idticket, checkbox_selected_names)
+
             
+
 
     def delete_item(self, item):
             reply = QMessageBox.question(self, "Eliminar número", "¿Estás seguro de que deseas eliminar este número?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
@@ -569,13 +669,63 @@ class Bodywindow(QMainWindow):
                         self.total_jugado.setText(str(resultado_actual))
                     self.total_una_loteria.setText(str(resultado_jugadas))
 
-        
+  
+checkbox_selected_names = []   
 
 class CobrarTicketWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         uic.loadUi("UI/cobrarticket.ui", self)
+        self.verificar_id.clicked.connect(self.verificar_ticket)
 
+
+
+    def verificar_ticket(self):
+        id_ticket = self.id_ticket.text()
+        cursor = conexion.cursor()
+        cursor.execute("SELECT * FROM jugadas WHERE id_ticket = %s", (id_ticket, ))
+        ticket = cursor.fetchall()
+        if ticket is not None:
+            for i in range(len(ticket)):
+                numero = ticket[i][1]
+                monto = ticket[i][2]
+                loteria = ticket[i][3]
+                fecha = ticket[i][4]
+                cobrado = ticket[i][5]
+                #print(numero + " " + "Para la" + " " + loteria)
+                
+            
+                #cursor2 = conexion2.cursor()
+                #cursor2.execute("SELECT * FROM search WHERE ")
+        else:
+            #print("maldita vaina")
+            pass
+
+
+
+checkbox_names = {
+    "AnguiladiezAM": "Anguila 10AM",
+    "AnguilaunaPM": "Anguila 1PM",
+    "AnguilaseisPM": "Anguila 6PM",
+    "AnguilanuevePM": "Anguila 9PM",
+    "CuartetadiezAM": "Cuarteta 10AM",
+    "CuartetaunaPM": "Cuarteta 1PM",
+    "CuartetaseisPM": "Cuarteta 6PM",
+    "CuartetanuevePM": "Cuarteta 9PM",
+    "FechaunaPM": "Fecha 1PM",
+    "FloridanuevePM": "Florida 9PM",
+    "GanadosPM": "Ganados PM",
+    "KingdocePM": "King 12PM",
+    "KingsietePM": "King 7PM",
+    "LeidsaochoPM": "Leidsa 8PM",
+    "LotekasietePM": "Lotería Nacional 7PM",
+    "NacionalochoPM": "Nacional 8PM",
+    "NewdiezPM": "New York 10PM",
+    "NewdosPM": "New York 2PM",
+    "PrimeradocePM": "Primera 12PM",
+    "RealunaPM": "Real 1PM",
+    "SuertedocePM": "Suerte 12PM"
+}
 
 def ventanta_emergente_def(title, icon, text):
     ventana_emergente = QMessageBox()

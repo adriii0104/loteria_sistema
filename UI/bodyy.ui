@@ -27,7 +27,6 @@
     border: 0.5px solid #888888;
     background-color: #E5E5E5;
     padding: 4px;
-    font-size: 11px;
 }
 QCheckBox:hover {
 border: 1px solid #2f81f7;
@@ -488,7 +487,7 @@ border: 1px solid #2f81f7;
     </property>
     <property name="font">
      <font>
-      <pointsize>-1</pointsize>
+      <pointsize>8</pointsize>
      </font>
     </property>
     <property name="cursor">
@@ -512,7 +511,7 @@ border: 1px solid #2f81f7;
     </property>
     <property name="font">
      <font>
-      <pointsize>-1</pointsize>
+      <pointsize>8</pointsize>
      </font>
     </property>
     <property name="cursor">
@@ -536,7 +535,7 @@ border: 1px solid #2f81f7;
     </property>
     <property name="font">
      <font>
-      <pointsize>-1</pointsize>
+      <pointsize>8</pointsize>
      </font>
     </property>
     <property name="cursor">
@@ -560,7 +559,7 @@ border: 1px solid #2f81f7;
     </property>
     <property name="font">
      <font>
-      <pointsize>-1</pointsize>
+      <pointsize>8</pointsize>
      </font>
     </property>
     <property name="cursor">
@@ -584,7 +583,7 @@ border: 1px solid #2f81f7;
     </property>
     <property name="font">
      <font>
-      <pointsize>-1</pointsize>
+      <pointsize>8</pointsize>
      </font>
     </property>
     <property name="cursor">
@@ -608,7 +607,7 @@ border: 1px solid #2f81f7;
     </property>
     <property name="font">
      <font>
-      <pointsize>-1</pointsize>
+      <pointsize>8</pointsize>
      </font>
     </property>
     <property name="cursor">
@@ -632,7 +631,7 @@ border: 1px solid #2f81f7;
     </property>
     <property name="font">
      <font>
-      <pointsize>-1</pointsize>
+      <pointsize>8</pointsize>
      </font>
     </property>
     <property name="cursor">
@@ -656,7 +655,7 @@ border: 1px solid #2f81f7;
     </property>
     <property name="font">
      <font>
-      <pointsize>-1</pointsize>
+      <pointsize>8</pointsize>
      </font>
     </property>
     <property name="cursor">
@@ -680,7 +679,7 @@ border: 1px solid #2f81f7;
     </property>
     <property name="font">
      <font>
-      <pointsize>-1</pointsize>
+      <pointsize>8</pointsize>
      </font>
     </property>
     <property name="cursor">
@@ -704,7 +703,7 @@ border: 1px solid #2f81f7;
     </property>
     <property name="font">
      <font>
-      <pointsize>-1</pointsize>
+      <pointsize>8</pointsize>
      </font>
     </property>
     <property name="cursor">
@@ -728,7 +727,7 @@ border: 1px solid #2f81f7;
     </property>
     <property name="font">
      <font>
-      <pointsize>-1</pointsize>
+      <pointsize>8</pointsize>
      </font>
     </property>
     <property name="cursor">
@@ -752,7 +751,7 @@ border: 1px solid #2f81f7;
     </property>
     <property name="font">
      <font>
-      <pointsize>-1</pointsize>
+      <pointsize>8</pointsize>
      </font>
     </property>
     <property name="cursor">
@@ -776,7 +775,7 @@ border: 1px solid #2f81f7;
     </property>
     <property name="font">
      <font>
-      <pointsize>-1</pointsize>
+      <pointsize>8</pointsize>
      </font>
     </property>
     <property name="cursor">
@@ -800,7 +799,7 @@ border: 1px solid #2f81f7;
     </property>
     <property name="font">
      <font>
-      <pointsize>-1</pointsize>
+      <pointsize>8</pointsize>
      </font>
     </property>
     <property name="cursor">
@@ -824,7 +823,7 @@ border: 1px solid #2f81f7;
     </property>
     <property name="font">
      <font>
-      <pointsize>-1</pointsize>
+      <pointsize>8</pointsize>
      </font>
     </property>
     <property name="cursor">
@@ -848,7 +847,7 @@ border: 1px solid #2f81f7;
     </property>
     <property name="font">
      <font>
-      <pointsize>-1</pointsize>
+      <pointsize>8</pointsize>
      </font>
     </property>
     <property name="cursor">
@@ -872,7 +871,7 @@ border: 1px solid #2f81f7;
     </property>
     <property name="font">
      <font>
-      <pointsize>-1</pointsize>
+      <pointsize>8</pointsize>
      </font>
     </property>
     <property name="cursor">
@@ -896,7 +895,7 @@ border: 1px solid #2f81f7;
     </property>
     <property name="font">
      <font>
-      <pointsize>-1</pointsize>
+      <pointsize>8</pointsize>
      </font>
     </property>
     <property name="cursor">
@@ -920,7 +919,7 @@ border: 1px solid #2f81f7;
     </property>
     <property name="font">
      <font>
-      <pointsize>-1</pointsize>
+      <pointsize>8</pointsize>
      </font>
     </property>
     <property name="cursor">
@@ -944,7 +943,7 @@ border: 1px solid #2f81f7;
     </property>
     <property name="font">
      <font>
-      <pointsize>-1</pointsize>
+      <pointsize>8</pointsize>
      </font>
     </property>
     <property name="cursor">
@@ -968,7 +967,7 @@ border: 1px solid #2f81f7;
     </property>
     <property name="font">
      <font>
-      <pointsize>-1</pointsize>
+      <pointsize>8</pointsize>
      </font>
     </property>
     <property name="cursor">
