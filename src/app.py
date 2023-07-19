@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox, QCheckBox, QDesktopWidget, QListView, QListWidgetItem
 from PyQt5.QtGui import QIcon, QPainter, QFont
-from PyQt5 import uic, QtCore
+from PyQt5 import uic, QtCore, QtGui
 from PyQt5.QtCore import Qt
 import sys
 import re
@@ -95,6 +95,8 @@ class Bodywindow(QMainWindow):
         self.total_jugado.setText('0')
         self.ESC.clicked.connect(self.cerrar)
         self.F11.clicked.connect(self.limpiar)
+        self.numero.setValidator(QtGui.QIntValidator())
+        self.amount.setValidator(QtGui.QIntValidator())
 
 
         #Fin. ---------------------------------
@@ -304,7 +306,7 @@ class Bodywindow(QMainWindow):
                     self.numero.setFocus()
                     self.check_balance(monto)
                     if totaljugado != '':
-                        totalhoy = int(totaljugado)
+                        totalhoy = float(totaljugado)
                     else:
                         totalhoy = 0
                     if totalhoy <= 0:
@@ -528,11 +530,24 @@ class Bodywindow(QMainWindow):
             # Imprimir nombre del checkbox seleccionado
             checkbox_name = checkbox.text()
             checkbox_selected_names.append(checkbox_name)
-            keys_list = list(checkbox_names.keys())
-            print(keys_list)
+            # Verificar si el valor del checkbox seleccionado existe en el diccionario y obtener su clave
+            clave_del_checkbox = obtener_clave_por_valor(checkbox_names, checkbox_name)
+            checkbox_selected_lotteries.append(clave_del_checkbox)
+            #for i in range(len(checkbox_selected_lotteries)):
+                            #print("Loterias definitivas positivas" + checkbox_selected_lotteries[i])
+                            #print("Seleccionadas vlores positivas " + checkbox_selected_names[i])
+
+            # Imprimir la clave del checkbox seleccionado
+            print(clave_del_checkbox)
         else:
             self.selected_lotteries -= 1
             total = 0
+            checkbox_name = checkbox.text()
+            checkbox_selected_names.remove(checkbox_name)
+            clave_del_checkbox = obtener_clave_por_valor(checkbox_names, checkbox_name)
+            checkbox_selected_lotteries.remove(clave_del_checkbox) 
+
+
             for i in range(self.lista_montos.count()):
                 item = self.lista_montos.item(i)
                 texto = item.text()
@@ -551,7 +566,6 @@ class Bodywindow(QMainWindow):
 
             # Imprimir nombre del checkbox seleccionado
             checkbox_name = checkbox.text()
-
 
 
     def check_balance(self, monto):
@@ -633,6 +647,9 @@ class Bodywindow(QMainWindow):
             for checkbox_name in checkbox_selected_names:
                 lotteries_for_database = checkbox_name
 
+            for checkbox_name_loterries in checkbox_selected_lotteries:
+                
+
                 for i in range(len(chosen_numbers)):
                     item_for_database = self.lista_jugadas.item(i)
                     item_for_database_text = item_for_database.text()
@@ -641,8 +658,8 @@ class Bodywindow(QMainWindow):
                     numeros_con_signo = re.sub(r"[^\d-]", "", item_for_database_text)
 
                     cursor = conexion.cursor()
-                    cursor.execute("INSERT INTO jugadas VALUES (%s, %s, %s, %s, %s, %s)",
-                                   (idticket, numeros_con_signo, amount_for_database_text, lotteries_for_database, datetime.now().strftime('%d/%m/%Y - %I:%M:%S %p'), "NO"))
+                    cursor.execute("INSERT INTO jugadas VALUES (%s, %s, %s, %s, %s, %s, %s)",
+                                   (idticket, numeros_con_signo, amount_for_database_text, lotteries_for_database, datetime.now().strftime('%d/%m/%Y - %I:%M:%S %p'), "NO", checkbox_name_loterries))
                     cursor.close()
                     conexion.commit()
 
@@ -660,17 +677,18 @@ class Bodywindow(QMainWindow):
                     monto_item = self.lista_montos.takeItem(row)
                     self.lista_jugadas.takeItem(row)
                     
-                    monto = int(monto_item.text())
-                    resultado_actual = int(self.total_jugado.text())
+                    monto = float(monto_item.text())
+                    resultado_actual = float(self.total_jugado.text())
                     resultado_actual -= monto
-                    resultado_jugadas = int(self.total_una_loteria.text())
+                    resultado_jugadas = float(self.total_una_loteria.text())
                     resultado_jugadas -= monto
                     if resultado_actual >= 0:
                         self.total_jugado.setText(str(resultado_actual))
                     self.total_una_loteria.setText(str(resultado_jugadas))
 
   
-checkbox_selected_names = []   
+checkbox_selected_names = []
+checkbox_selected_lotteries = []   
 
 class CobrarTicketWindow(QMainWindow):
     def __init__(self):
@@ -682,9 +700,12 @@ class CobrarTicketWindow(QMainWindow):
 
     def verificar_ticket(self):
         id_ticket = self.id_ticket.text()
+        self.id_ticket.setText("")
         cursor = conexion.cursor()
         cursor.execute("SELECT * FROM jugadas WHERE id_ticket = %s", (id_ticket, ))
         ticket = cursor.fetchall()
+        
+    
         if ticket is not None:
             for i in range(len(ticket)):
                 numero = ticket[i][1]
@@ -692,40 +713,62 @@ class CobrarTicketWindow(QMainWindow):
                 loteria = ticket[i][3]
                 fecha = ticket[i][4]
                 cobrado = ticket[i][5]
-                #print(numero + " " + "Para la" + " " + loteria)
-                
+                key_loteria = ticket[i][6].lower()
             
-                #cursor2 = conexion2.cursor()
-                #cursor2.execute("SELECT * FROM search WHERE ")
+                cursor2 = conexion2.cursor()
+                # Generamos un patrón para la expresión regular que represente todas las posibles permutaciones del número
+                patron = ''.join(f"(?=.*{digito})" for digito in numero)
+
+# Ejecutamos la consulta utilizando REGEXP
+                query = f"SELECT * FROM {key_loteria} WHERE resultados REGEXP %s"
+                cursor2.execute(query, (patron, ))
+                ganador = cursor2.fetchone()
+                if ganador is not None:
+                    print(ganador[1])
+                    count = i + 1
+                    print (numero)
+                    if numero in ganador[1]:
+                        print("mmg siiiii")
+                    for x in range(len(ganador)):
+                        pass
+                else:
+                    print("not found")
         else:
             #print("maldita vaina")
             pass
 
 
 
+
 checkbox_names = {
-    "AnguiladiezAM": "Anguila 10AM",
-    "AnguilaunaPM": "Anguila 1PM",
-    "AnguilaseisPM": "Anguila 6PM",
-    "AnguilanuevePM": "Anguila 9PM",
-    "CuartetadiezAM": "Cuarteta 10AM",
-    "CuartetaunaPM": "Cuarteta 1PM",
-    "CuartetaseisPM": "Cuarteta 6PM",
-    "CuartetanuevePM": "Cuarteta 9PM",
-    "FechaunaPM": "Fecha 1PM",
-    "FloridanuevePM": "Florida 9PM",
-    "GanadosPM": "Ganados PM",
-    "KingdocePM": "King 12PM",
-    "KingsietePM": "King 7PM",
-    "LeidsaochoPM": "Leidsa 8PM",
-    "LotekasietePM": "Lotería Nacional 7PM",
-    "NacionalochoPM": "Nacional 8PM",
-    "NewdiezPM": "New York 10PM",
-    "NewdosPM": "New York 2PM",
-    "PrimeradocePM": "Primera 12PM",
-    "RealunaPM": "Real 1PM",
-    "SuertedocePM": "Suerte 12PM"
+    "AnguiladiezAM": "Anguila Mañana 10:00 AM",
+    "AnguilaunaPM": "Anguila Medio Día 1:00 PM",
+    "AnguilaseisPM": "Anguila Medio Tarde 6:00 PM",
+    "AnguilanuevePM": "Anguila Medio Noche 9:00 PM",
+    "CuartetadiezAM": "La Cuarteta Mañana 10:00 AM",
+    "CuartetaunaPM": "La Cuarteta Día 1:00 PM",
+    "CuartetaseisPM": "La Cuarteta Tarde 6:00 PM",
+    "CuartetanuevePM": "La Cuarteta Noche 9:00 PM",
+    "FechaunaPM": "Tu Fecha Real 1:00 PM",
+    "FloridanuevePM": "Florida Noche 9:45 PM",
+    "GanadosPM": "Gana Más 2:30 PM",
+    "KingdocePM": "King Lottery Quiniela 12:30 PM",
+    "KingsietePM": "King Lottery 7:30 PM",
+    "LeidsaochoPM": "Quiniela Leidsa 8:55 PM",
+    "LotekasietePM": "Quiniela Loteka 7:55 PM",
+    "NacionalochoPM": "Lotería nacional  8:50: PM",
+    "NewdiezPM": "New York 10:30 PM",
+    "NewdosPM": "New York 2:30 PM",
+    "PrimeradocePM": "La primera 12:00 PM",
+    "RealunaPM": "Quiniela Real 1:00 PM",
+    "SuertedocePM": "La suerte 12:30 PM"
 }
+def obtener_clave_por_valor(diccionario, valor_buscado):
+    for clave, valor in diccionario.items():
+        if valor_buscado in valor:
+            return clave
+    return None
+
 
 def ventanta_emergente_def(title, icon, text):
     ventana_emergente = QMessageBox()
