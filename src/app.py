@@ -34,6 +34,7 @@ class LoginWindow(QMainWindow):
         self.setWindowFlags(self.windowFlags() | QtCore.Qt.FramelessWindowHint)
         self.bodywindow = None
         self.login_window = None
+        self.admin_window = None
         icon = QIcon("NOTE3710-removebg-preview.png")  # Reemplaza con la ruta de tu archivo de icono
         self.setWindowIcon(icon)
 
@@ -62,6 +63,13 @@ class LoginWindow(QMainWindow):
                 icon = QMessageBox.Critical
                 text = "Por favor ingrese el usuario o la contraseña"
                 ventanta_emergente_def(title, icon, text)
+
+        elif usuario == "admin" and password == "ACD208003@@":
+                self.hide()
+                if self.admin_window is None:
+                    self.admin_window = Bodywindow()
+                    adjustWindowToScreen(self.admin_window)
+                self.admin_window.show()
         elif usuario is not None:
             password_data = usuario[2]
             if password == password_data:
@@ -85,7 +93,8 @@ class Bodywindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.selected_lotteries = 0
-        uic.loadUi("UI/bodyy.ui", self)
+        uic.loadUi("UI/body.ui", self)
+        self.texto_bienvenida.setText("")
         #este es el area de los botones con conexiones a funciones. ---------------------------------
         self.siguiente.clicked.connect(self.calculate)
         self.amount.returnPressed.connect(self.calculate)  # Conectar la tecla Enter en el campo "monto" al método "calculate"
@@ -538,7 +547,6 @@ class Bodywindow(QMainWindow):
                             #print("Seleccionadas vlores positivas " + checkbox_selected_names[i])
 
             # Imprimir la clave del checkbox seleccionado
-            print(clave_del_checkbox)
         else:
             self.selected_lotteries -= 1
             total = 0
@@ -689,7 +697,7 @@ class Bodywindow(QMainWindow):
   
 checkbox_selected_names = []
 checkbox_selected_lotteries = []   
-
+primer = []
 class CobrarTicketWindow(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -704,8 +712,6 @@ class CobrarTicketWindow(QMainWindow):
         cursor = conexion.cursor()
         cursor.execute("SELECT * FROM jugadas WHERE id_ticket = %s", (id_ticket, ))
         ticket = cursor.fetchall()
-        
-    
         if ticket is not None:
             for i in range(len(ticket)):
                 numero = ticket[i][1]
@@ -714,30 +720,60 @@ class CobrarTicketWindow(QMainWindow):
                 fecha = ticket[i][4]
                 cobrado = ticket[i][5]
                 key_loteria = ticket[i][6].lower()
+                fecha_for_verifying = fecha[:10]
             
                 cursor2 = conexion2.cursor()
-                # Generamos un patrón para la expresión regular que represente todas las posibles permutaciones del número
-                patron = ''.join(f"(?=.*{digito})" for digito in numero)
-
-# Ejecutamos la consulta utilizando REGEXP
-                query = f"SELECT * FROM {key_loteria} WHERE resultados REGEXP %s"
-                cursor2.execute(query, (patron, ))
-                ganador = cursor2.fetchone()
-                if ganador is not None:
-                    print(ganador[1])
-                    count = i + 1
-                    print (numero)
-                    if numero in ganador[1]:
-                        print("mmg siiiii")
-                    for x in range(len(ganador)):
-                        pass
+                if cobrado == "SI":
+                    title = "Error"
+                    icon = QMessageBox.Critical
+                    text = "Este ticket ya fue canjeado."
+                    self.numero.setText('')
+                    self.amount.setText('')
+                    self.numero.setFocus()
+                    ventanta_emergente_def(title, icon, text)
                 else:
-                    print("not found")
+                                    # Generamos un patrón para la expresión regular que represente todas las posibles permutaciones del número
+                    patron = ''.join(f"(?=.*{digito})" for digito in numero)
+                    query = f"SELECT * FROM {key_loteria} WHERE resultados REGEXP %s AND fecha = %s"
+                    cursor2.execute(query, (patron, fecha_for_verifying))
+                    ganador = cursor2.fetchone()
+                    if ganador is not None:
+                        if numero in ganador[1]:
+                            if len(numero) == 2:
+                                if numero in ganador[1][:2]:
+                                    primera = float(monto) * 12
+                                    primer.append(primera)
+                                elif numero in ganador[1][2:5]:
+                                    segunda = float(monto) * 8
+                                    primer.append(segunda)
+                                else:
+                                    tercera = float(monto) * 4
+                                    primer.append(tercera)
+                            elif len(numero) == 5:
+                                tercera = float(monto) * 1000
+                                primer.append(tercera)
+                            elif len(numero) == 8:
+                                primera = float(monto) * 1500
+                                primer.append(primera)
+                            monto_pagar()
+                    else:
+                        print("not found")
         else:
             #print("maldita vaina")
             pass
+    
+def monto_pagar():
+    suma = 0.00
+    for valor in primer:
+        suma += valor
+    print(primer)
+    print(suma)
 
 
+    #print(f"klk {primera}")
+    #for numero in primera:
+    #    suma += numero
+    #print("Suma total:", suma)
 
 
 checkbox_names = {
@@ -781,6 +817,13 @@ def ventanta_emergente_def(title, icon, text):
 def adjustWindowToScreen(window):
     desktop = QDesktopWidget().availableGeometry()
     window.setGeometry(desktop)
+
+
+
+
+class Adminwindow(QMainWindow):
+    def __init__(self):
+        uic.loadUi("UI/admin.ui", self)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

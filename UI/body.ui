@@ -1007,7 +1007,7 @@ border: 1px solid #2f81f7;
      <number>6</number>
     </property>
    </widget>
-   <widget class="QLabel" name="label_13">
+   <widget class="QLabel" name="texto_bienvenida">
     <property name="geometry">
      <rect>
       <x>60</x>
@@ -1028,7 +1028,7 @@ border: 1px solid #2f81f7;
      <string notr="true">color: rgb(47, 129, 247);</string>
     </property>
     <property name="text">
-     <string>BFS SP#01</string>
+     <string/>
     </property>
    </widget>
    <widget class="QPushButton" name="siguiente">
