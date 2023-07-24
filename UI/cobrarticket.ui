@@ -14,8 +14,18 @@
    <string>COBRAR TICKET</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">QLineEdit:placeholder{
+   <string notr="true">*{
+background: #214032;
+color: white;
+}
+QLineEdit:placeholder{
 margin-left:45px;
+}
+QPushButton{
+border: none;
+background: white;
+color: black;
+border-radius:7px;
 }</string>
   </property>
   <widget class="QWidget" name="centralwidget">
@@ -23,7 +33,7 @@ margin-left:45px;
     <property name="geometry">
      <rect>
       <x>190</x>
-      <y>50</y>
+      <y>60</y>
       <width>181</width>
       <height>31</height>
      </rect>
@@ -34,7 +44,7 @@ margin-left:45px;
      </font>
     </property>
     <property name="styleSheet">
-     <string notr="true">color: rgb(0, 0, 0);</string>
+     <string notr="true"/>
     </property>
     <property name="text">
      <string>VERIFICAR TICKET</string>
@@ -46,7 +56,7 @@ margin-left:45px;
       <x>90</x>
       <y>140</y>
       <width>381</width>
-      <height>31</height>
+      <height>41</height>
      </rect>
     </property>
     <property name="placeholderText">

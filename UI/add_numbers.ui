@@ -1,0 +1,326 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>624</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">*{
+background: #214032;
+color: white;
+}
+QPushButton{
+border: none;
+background: white;
+color: black;
+}</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QPushButton" name="AnguiladiezAM">
+    <property name="geometry">
+     <rect>
+      <x>50</x>
+      <y>190</y>
+      <width>131</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>ANGUILA 10AM</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="CuartetadiezAM">
+    <property name="geometry">
+     <rect>
+      <x>190</x>
+      <y>190</y>
+      <width>131</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>CUARTETA 10AM</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="PrimeradocePM">
+    <property name="geometry">
+     <rect>
+      <x>330</x>
+      <y>190</y>
+      <width>131</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>PRIMERA 12PM</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="KingdocePM">
+    <property name="geometry">
+     <rect>
+      <x>470</x>
+      <y>190</y>
+      <width>131</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>KING 12:30PM</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="SuertedocePM">
+    <property name="geometry">
+     <rect>
+      <x>610</x>
+      <y>190</y>
+      <width>131</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>SUERTE 12:30PM</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="GanadosPM">
+    <property name="geometry">
+     <rect>
+      <x>610</x>
+      <y>240</y>
+      <width>131</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>GANA 2:30PM</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="FechaunaPM">
+    <property name="geometry">
+     <rect>
+      <x>470</x>
+      <y>240</y>
+      <width>131</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>FECHA 1:00PM</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="RealunaPM">
+    <property name="geometry">
+     <rect>
+      <x>330</x>
+      <y>240</y>
+      <width>131</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>REAL 1:00PM</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="CuartetaunaPM">
+    <property name="geometry">
+     <rect>
+      <x>190</x>
+      <y>240</y>
+      <width>131</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>CUARTETA 1:00PM</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="AnguilaunaPM">
+    <property name="geometry">
+     <rect>
+      <x>50</x>
+      <y>240</y>
+      <width>131</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>ANGUILA 1:00PM</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="LotekasietePM">
+    <property name="geometry">
+     <rect>
+      <x>610</x>
+      <y>290</y>
+      <width>131</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>LOTEKA 7:55PM</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="KingsietePM">
+    <property name="geometry">
+     <rect>
+      <x>470</x>
+      <y>290</y>
+      <width>131</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>KING 7:30PM</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="CuartetaseisPM">
+    <property name="geometry">
+     <rect>
+      <x>330</x>
+      <y>290</y>
+      <width>131</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>CUARTETA 6:00PM</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="AnguilaseisPM">
+    <property name="geometry">
+     <rect>
+      <x>190</x>
+      <y>290</y>
+      <width>131</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>ANGUILA 6:00PM</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="NewdosPM">
+    <property name="geometry">
+     <rect>
+      <x>50</x>
+      <y>290</y>
+      <width>131</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>NEW YORK 2:30PM</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="FloridanuevePM">
+    <property name="geometry">
+     <rect>
+      <x>610</x>
+      <y>340</y>
+      <width>131</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>FLORIDA 9:45PM</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="CuartetanuevePM">
+    <property name="geometry">
+     <rect>
+      <x>470</x>
+      <y>340</y>
+      <width>131</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>CUARTETA 9:00PM</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="AnguilanuevePM">
+    <property name="geometry">
+     <rect>
+      <x>330</x>
+      <y>340</y>
+      <width>131</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>ANGUILA 9:00PM</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="LeidsaochoPM">
+    <property name="geometry">
+     <rect>
+      <x>190</x>
+      <y>340</y>
+      <width>131</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>LEIDSA 8:55PM</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="NacionalochoPM">
+    <property name="geometry">
+     <rect>
+      <x>50</x>
+      <y>340</y>
+      <width>131</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>NACIONAL 8:50PM</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="NewdiezPM">
+    <property name="geometry">
+     <rect>
+      <x>610</x>
+      <y>390</y>
+      <width>131</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>NEW YORK 10:30PM</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>230</x>
+      <y>110</y>
+      <width>391</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>13</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>ELIGE UNA LOTERIA PARA ACTUALIZAR</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

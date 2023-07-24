@@ -23,28 +23,21 @@
   </property>
   <property name="styleSheet">
    <string notr="true">*{
-background-image: url(IMGS/PYXW9466.PNG);
-background-repeat: no-repeat !important;
-background-position: center;
-font-family:&quot;Poppins&quot;,sans serif;
+background: #214032;
 }
+
 #user:focus~#label2{
 display: none;
 }
 QLineEdit {
-    background-color: transparent;
+    background: #0C1913;
     color: white;
-    border-top: none;
-    border-left: none;
-    border-right: none;
-    border-bottom: 1px solid rgb(161, 161, 161) ;
+    border: none;
+border-radius: 17px;
+padding: 12px;
 }
 QMainWindow {
-    icon: url(IMGS/NOTE3710-removebg-preview.png);
-}
-
-QLineEdit:focus {
-    border-bottom: 1px solid #2f81f7;
+    icon: url(IMGS/login.png);
 }
 QLabel{
 color: white;
@@ -55,39 +48,20 @@ color: white;
    <enum>Qt::ToolButtonIconOnly</enum>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QLabel" name="label_2">
-    <property name="geometry">
-     <rect>
-      <x>220</x>
-      <y>160</y>
-      <width>51</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <family>Poppins,sans serif</family>
-     </font>
-    </property>
-    <property name="styleSheet">
-     <string notr="true"/>
-    </property>
-    <property name="text">
-     <string>Usuario</string>
-    </property>
-   </widget>
    <widget class="QLineEdit" name="user">
     <property name="geometry">
      <rect>
-      <x>120</x>
+      <x>110</x>
       <y>190</y>
-      <width>241</width>
-      <height>31</height>
+      <width>271</width>
+      <height>41</height>
      </rect>
     </property>
     <property name="font">
      <font>
-      <family>Poppins,sans serif</family>
+      <family>Segoe UI Black</family>
+      <weight>75</weight>
+      <bold>true</bold>
      </font>
     </property>
     <property name="styleSheet">
@@ -97,67 +71,21 @@ color: white;
      <string>Inserte su usuario</string>
     </property>
    </widget>
-   <widget class="QLineEdit" name="password">
-    <property name="geometry">
-     <rect>
-      <x>120</x>
-      <y>280</y>
-      <width>241</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <family>Poppins,sans serif</family>
-     </font>
-    </property>
-    <property name="styleSheet">
-     <string notr="true"/>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-    <property name="echoMode">
-     <enum>QLineEdit::Password</enum>
-    </property>
-    <property name="placeholderText">
-     <string>Inserte su contrasena</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_3">
-    <property name="geometry">
-     <rect>
-      <x>210</x>
-      <y>260</y>
-      <width>71</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <family>Poppins,sans serif</family>
-     </font>
-    </property>
-    <property name="styleSheet">
-     <string notr="true"/>
-    </property>
-    <property name="text">
-     <string>Contrasena</string>
-    </property>
-   </widget>
    <widget class="QPushButton" name="Botonlogin">
     <property name="geometry">
      <rect>
-      <x>110</x>
-      <y>370</y>
-      <width>261</width>
+      <x>140</x>
+      <y>360</y>
+      <width>211</width>
       <height>41</height>
      </rect>
     </property>
     <property name="font">
      <font>
-      <family>-apple-system,BlinkMacSystemFont,Segoe UI,Noto Sans,Helvetica,Arial,sans-serif,Apple Color Emoji,Segoe UI Emoji</family>
-      <weight>62</weight>
+      <family>Segoe UI Black</family>
+      <pointsize>8</pointsize>
+      <weight>75</weight>
+      <italic>false</italic>
       <bold>true</bold>
      </font>
     </property>
@@ -168,16 +96,11 @@ color: white;
      <string notr="true">QPushButton{
 border-radius: 7px;
 border: none;
-color: black;
-font-family: -apple-system,BlinkMacSystemFont,&quot;Segoe UI&quot;,&quot;Noto Sans&quot;,Helvetica,Arial,sans-serif,&quot;Apple Color Emoji&quot;,&quot;Segoe UI Emoji&quot;;
+color: white;
     border: none;
-    background: white;
-    border-radius: 6px;
+    background: #0C2929;
     padding: 15px 85px;
-    font-weight: 500;
-}
-QPushButton:hover{
-color: #2f81f7;
+
 }</string>
     </property>
     <property name="text">
@@ -195,6 +118,53 @@ color: #2f81f7;
     </property>
     <property name="text">
      <string>Precione Esc para salir o F5 para reiniciar</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_5">
+    <property name="geometry">
+     <rect>
+      <x>140</x>
+      <y>110</y>
+      <width>221</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Segoe UI Black</family>
+      <pointsize>21</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true"/>
+    </property>
+    <property name="text">
+     <string>inicio de sesión</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="password">
+    <property name="geometry">
+     <rect>
+      <x>110</x>
+      <y>270</y>
+      <width>271</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Segoe UI Black</family>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true"/>
+    </property>
+    <property name="placeholderText">
+     <string>Inserte su usuario</string>
     </property>
    </widget>
   </widget>

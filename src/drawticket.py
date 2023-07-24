@@ -5,7 +5,7 @@ from datetime import datetime
 import webbrowser
 
 
-def generar_recibo(added_elements, chosen_numbers, amount, total_precio, archivo_pdf_azar, idticket, loterias):
+def generar_recibo(nombre_banca ,added_elements, chosen_numbers, amount, total_precio, archivo_pdf_azar, idticket, loterias):
     # Cantidad de elementos a agregar
     elementos_agregados = added_elements
 
@@ -34,19 +34,19 @@ def generar_recibo(added_elements, chosen_numbers, amount, total_precio, archivo
     c.setFont("Helvetica-Bold", 8)  # Aquí estableces la fuente y tamaño en negrita
 
     # Contenido del recibo
-    c.drawString(31 * mm, (altura_total - 10) * mm, "BFS SP#01")
+    c.drawString(35 * mm, (altura_total - 10) * mm, nombre_banca)
 
     c.setFont("Helvetica", 6)  # Restauras la fuente y tamaño normal
 
-    c.drawString(4 * mm, (altura_total - 17) * mm, f"TICKET :  {idticket}")
+    c.drawString(4 * mm, (altura_total - 22) * mm, f"TICKET :  {idticket}")
 
-    c.drawString(4 * mm, (altura_total - 21) * mm, f"FECHA :  {datetime.now().strftime('%d/%m/%Y - %I:%M:%S %p')}")
+    c.drawString(4 * mm, (altura_total - 25) * mm, f"FECHA :  {datetime.now().strftime('%d/%m/%Y - %I:%M:%S %p')}")
     # Resto del contenido del recibo...
 
     c.setLineWidth(0.01)  # Grosor de línea de 2 puntos
 
     # Dibujar línea horizontal
-    c.drawString(4 * mm, (altura_total - 23) * mm, "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -")
+    c.drawString(4 * mm, (altura_total - 27) * mm, "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -")
 
     c.setFont("Helvetica", 7)  # Restauras la fuente y tamaño normal
 
@@ -65,17 +65,19 @@ def generar_recibo(added_elements, chosen_numbers, amount, total_precio, archivo
     y_numeros_jugados = y_loterias - (line_height * 2)  # Coordenada y inicial para los números jugados
     for i in range(elementos_agregados):
         numero = i + 1
-        elemento = f"{numero}) {chosen_numbers[i]}"
+        numeros_jugados = chosen_numbers[i]
+        elemento = f"{numero}) {numeros_jugados}"
         c.drawString(4 * mm, y_numeros_jugados, elemento)
         # Resto del dibujo del elemento...
         c.drawString(60 * mm, y_numeros_jugados, amount[i])  # Monto fijo para cada elemento
         y_numeros_jugados -= altura_elemento  # Mover hacia abajo para la siguiente línea de texto
+        y_numeros_jugados -= 4  # Espacio vertical de 2 unidades entre elementos
 
     c.setFont("Helvetica-Bold", 7)
-    c.drawString(10 * mm, (altura_total - (45 + altura_loterias + (elementos_agregados * altura_elemento))) * mm,
+    c.drawString(10 * mm, (altura_total - (40 + altura_loterias + (elementos_agregados * altura_elemento))) * mm,
                  f"TOTAL APOSTADO RD$:       {total_precio}")
     c.setFont("Helvetica", 5)
-    c.drawString(0 * mm, (altura_total - (40 + altura_loterias + (elementos_agregados * altura_elemento))) * mm,
+    c.drawString(0 * mm, (altura_total - (35 + altura_loterias + (elementos_agregados * altura_elemento))) * mm,
                  f"- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ")
 
     # Guardar el recibo y finalizar el lienzo del PDF
