@@ -21,6 +21,9 @@
   <property name="windowTitle">
    <string>Genuine Services</string>
   </property>
+  <property name="windowIcon">
+   <iconset theme="asda"/>
+  </property>
   <property name="styleSheet">
    <string notr="true">*{
 background: #214032;
@@ -42,6 +45,41 @@ QMainWindow {
 QLabel{
 color: white;
 }
+            QMainWindow {
+                background-color: #f4f4f4;
+            }
+            QMenuBar {
+                background-color: #0066cc;
+                color: white;
+            }
+            QMenuBar::item {
+                spacing: 3px;
+                padding: 8px 15px;
+                background-color: transparent;
+            }
+            QMenuBar::item:selected {
+                background-color: #0052a3;
+            }
+            QMenu {
+                background-color: #f4f4f4;
+                color: black;
+            }
+            QMenu::item {
+                padding: 5px 25px;
+                background-color: transparent;
+            }
+            QMenu::item:selected {
+                background-color: #cce0ff;
+            }
+            QMenu::icon {
+                margin-right: 10px;
+            }
+            QMenu::separator {
+                height: 1px;
+                background: #c2c2c2;
+                margin: 5px 0px 5px 10px;
+            }
+
 </string>
   </property>
   <property name="toolButtonStyle">
