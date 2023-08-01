@@ -42,7 +42,7 @@ def generar_recibo(nombre_banca ,added_elements, chosen_numbers, amount, total_p
     c.setFont("Helvetica-Bold", 8)  # Aquí estableces la fuente y tamaño en negrita
 
     # Contenido del recibo
-    c.drawString(32 * mm, (altura_total - 15) * mm, nombre_banca)
+    c.drawString(24 * mm, (altura_total - 15) * mm, nombre_banca)
 
     c.setFont("Helvetica", 6)  # Restauras la fuente y tamaño normal
 

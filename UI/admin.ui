@@ -88,7 +88,7 @@ color:white;
      <string>Eliminar Banca</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButton_3">
+   <widget class="QPushButton" name="mantenimiento_button">
     <property name="geometry">
      <rect>
       <x>130</x>

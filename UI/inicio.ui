@@ -22,19 +22,20 @@
    <string>Genuine Services</string>
   </property>
   <property name="windowIcon">
-   <iconset theme="asda"/>
+   <iconset theme="asda">
+    <normaloff>.</normaloff>.</iconset>
   </property>
   <property name="styleSheet">
    <string notr="true">*{
-background: #214032;
+background: #52057B;
 }
 
 #user:focus~#label2{
 display: none;
 }
 QLineEdit {
-    background: #0C1913;
-    color: white;
+    background: white;
+    color: black;
     border: none;
 border-radius: 17px;
 padding: 12px;
@@ -90,30 +91,31 @@ color: white;
     <property name="geometry">
      <rect>
       <x>110</x>
-      <y>190</y>
+      <y>200</y>
       <width>271</width>
       <height>41</height>
      </rect>
     </property>
     <property name="font">
      <font>
-      <family>Segoe UI Black</family>
-      <weight>75</weight>
-      <bold>true</bold>
+      <family>Montserrat</family>
+      <pointsize>8</pointsize>
+      <weight>50</weight>
+      <bold>false</bold>
      </font>
     </property>
     <property name="styleSheet">
      <string notr="true"/>
     </property>
     <property name="placeholderText">
-     <string>Inserte su usuario</string>
+     <string>Usuario</string>
     </property>
    </widget>
    <widget class="QPushButton" name="Botonlogin">
     <property name="geometry">
      <rect>
       <x>140</x>
-      <y>360</y>
+      <y>340</y>
       <width>211</width>
       <height>41</height>
      </rect>
@@ -136,7 +138,7 @@ border-radius: 7px;
 border: none;
 color: white;
     border: none;
-    background: #0C2929;
+    background: #BC6FF1;
     padding: 15px 85px;
 
 }</string>
@@ -154,6 +156,11 @@ color: white;
       <height>16</height>
      </rect>
     </property>
+    <property name="font">
+     <font>
+      <family>Montserrat</family>
+     </font>
+    </property>
     <property name="text">
      <string>Precione Esc para salir o F5 para reiniciar</string>
     </property>
@@ -161,10 +168,10 @@ color: white;
    <widget class="QLabel" name="label_5">
     <property name="geometry">
      <rect>
-      <x>140</x>
-      <y>110</y>
-      <width>221</width>
-      <height>31</height>
+      <x>200</x>
+      <y>100</y>
+      <width>101</width>
+      <height>51</height>
      </rect>
     </property>
     <property name="font">
@@ -179,30 +186,31 @@ color: white;
      <string notr="true"/>
     </property>
     <property name="text">
-     <string>inicio de sesión</string>
+     <string>Log In</string>
     </property>
    </widget>
    <widget class="QLineEdit" name="password">
     <property name="geometry">
      <rect>
       <x>110</x>
-      <y>270</y>
+      <y>260</y>
       <width>271</width>
       <height>41</height>
      </rect>
     </property>
     <property name="font">
      <font>
-      <family>Segoe UI Black</family>
-      <weight>75</weight>
-      <bold>true</bold>
+      <family>Montserrat</family>
+      <pointsize>8</pointsize>
+      <weight>50</weight>
+      <bold>false</bold>
      </font>
     </property>
     <property name="styleSheet">
      <string notr="true"/>
     </property>
     <property name="placeholderText">
-     <string>Inserte su usuario</string>
+     <string>Contrasena</string>
     </property>
    </widget>
   </widget>

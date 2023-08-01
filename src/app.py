@@ -32,9 +32,9 @@ class LoginWindow(QMainWindow):
         self.Botonlogin.clicked.connect(self.login)
         self.user.returnPressed.connect(self.focus)
         self.password.returnPressed.connect(self.login)
-        self.setWindowFlags(self.windowFlags() | QtCore.Qt.FramelessWindowHint)
-        self.setWindowTitle("LOTERIA")
-        self.setWindowFlags(self.windowFlags() | QtCore.Qt.FramelessWindowHint)
+        #self.setWindowFlags(self.windowFlags() | QtCore.Qt.FramelessWindowHint)
+        #self.setWindowTitle("LOTERIA")
+        #self.setWindowFlags(self.windowFlags() | QtCore.Qt.FramelessWindowHint)
         self.bodywindow = None
         self.login_window = None
         self.admin_window = None
@@ -642,6 +642,12 @@ class Bodywindow(QMainWindow):
             if self.login_window is None:
                 self.login_window = LoginWindow()
             self.login_window.show()
+        if event.key() == Qt.Key_F2:
+            checkboxes = self.findChildren(QCheckBox)
+
+            # Deseleccionar todos los checkboxes encontrados
+            for checkbox in checkboxes:
+                checkbox.setChecked(False)
         if event.key() == Qt.Key_F5:
             self.close()
             if self.body_window is None:
@@ -658,6 +664,11 @@ class Bodywindow(QMainWindow):
             self.lista_montos.clear()
             self.total_una_loteria.setText('0')
             self.total_jugado.setText('0')
+        if event.key() == Qt.Key_F9:
+            self.block_numbers = None
+            if self.block_numbers is None:
+                self.block_numbers = BlockNumbers()
+            self.block_numbers.show()
         if event.key() == Qt.Key_F10:
                 self.imprimir_ticket()
 
@@ -667,7 +678,40 @@ class Bodywindow(QMainWindow):
         nombre_banca = sesion_usuario.get('nombre_banca')
         id_banca = sesion_usuario.get('id_banca')
         id_sucursal = sesion_usuario.get('id_sucursal')
-        if len(self.lista_montos) == 0:
+        cursor = conexion.cursor()
+        cursor.execute("SELECT * FROM bloqueado WHERE id_banca = %s and id_sucursal = %s", (id_banca, id_sucursal))
+        bloqueado = cursor.fetchall()
+        cursor.close()
+        cursor2 = conexion.cursor()
+        list_numbers = []
+        #numero_bloqueado_analicts = numero_bloqueado[2]
+        for i in range(self.lista_montos.count()):
+            items = self.lista_jugadas.item(i)
+            jugadas_texto = items.text()
+            resultado = re.sub(r'[^\d-]', '', jugadas_texto)
+        for x in range(len(bloqueado)):
+            list_numbers.append(bloqueado[x][2])
+
+        cursor2.execute("SELECT * FROM jugadas WHERE id_banca = %s and id_sucursal = %s and numeros = %s", (id_banca, id_sucursal, resultado))
+        resultado2 = cursor2.fetchall()
+        for z in range(len(resultado2)):
+            total = z
+            print(total)
+        if total >= 2:
+            title = "Error"
+            icon = QMessageBox.Critical
+            text = f"Esta jugada no está disponible debido a que se agotó la disponibilidad de los números."
+            ventanta_emergente_def(title, icon, text)
+
+        elif resultado in list_numbers:
+            title = "Error"
+            icon = QMessageBox.Critical
+            text = f"La jugada no pudo ser realizada debido que el numero {resultado} no está disponible para ventas."
+            ventanta_emergente_def(title, icon, text)
+
+        #for x in numero_bloqueado_analicts:
+         #   pass
+        elif len(self.lista_montos) == 0:
             title = "Error"
             icon = QMessageBox.Critical
             text = "Antes de imprimir debes escribir las jugadas."
@@ -1033,7 +1077,7 @@ checkbox_names = {
     "CuartetanuevePM": "La Cuarteta Noche 9:00 PM",
     "FechaunaPM": "Tu Fecha Real 1:00 PM",
     "FloridanuevePM": "Florida Noche 9:45 PM",
-    "floridadospm": "Florida Día 2:30 PM",
+    "FloridadosPM": "Florida Día 2:30 PM",
     "GanadosPM": "Gana Más 2:30 PM",
     "KingdocePM": "King Lottery Quiniela 12:30 PM",
     "KingsietePM": "King Lottery 7:30 PM",
@@ -1102,8 +1146,10 @@ class Adminwindow(QMainWindow):
         self.add_number.clicked.connect(self.add_numbers)
         self.eliminar_banca.clicked.connect(self.desactivar_banca)
         self.registrar_sucursal.clicked.connect(self.registrar_sucursal_banca)
+        self.mantenimiento_button.clicked.connect(self.mantenimiento)
         self.add_numbers_window = None
         self.desactivar_window = None
+        self.mantain_window = None
     def keyPressEvent(self, event):
             if event.key() == Qt.Key_Escape:
                 self.close()
@@ -1112,6 +1158,11 @@ class Adminwindow(QMainWindow):
         if self.add_numbers_window is None:
             self.add_numbers_window = Addnumbers()
         self.add_numbers_window.show()
+    def mantenimiento(self):
+        self.close()
+        if self.mantain_window is None:
+            self.mantain_window = Mantain()
+        self.mantain_window.show()
 
     def registrar_sucursal_banca(self):
             intentado = True
@@ -1203,6 +1254,67 @@ def generate_salt():
 def hash_password(password, salt):
     hashed_password = hashlib.sha256(password.encode() + salt.encode()).hexdigest()
     return hashed_password
+
+class Mantain(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        uic.loadUi("UI/mantenimiento_base_datos.ui", self)
+        self.siete.clicked.connect(self.siete_dias)
+        self.quince.clicked.connect(self.quince_dias)
+        self.treinta.clicked.connect(self.treinta_dias)
+        # Obtener la fecha actual
+        fecha_actual = datetime.now()
+
+        # Calcular la fecha hace 30 días
+        treinta_dias_antes = fecha_actual - timedelta(days=30)
+
+        # Formatear las fechas en el formato deseado (dd/mm/yyyy)
+        fecha_actual_formateada = fecha_actual.strftime('%d/%m/%Y')
+        self.treinta_dias_antes_formateada = treinta_dias_antes.strftime('%d/%m/%Y - %I:%M:%S %p')
+
+    def siete_dias(self):
+        pass
+
+    def quince_dias(self):
+        print("Quince")
+
+    def treinta_dias(self):
+        try:
+            # Crear un objeto cursor
+            cursor = conexion.cursor()
+
+            # Calcular la fecha hace exactamente 30 días
+            fecha_actual = datetime.now()
+            treinta_dias_antes = fecha_actual - timedelta(days=30)
+
+            # Formatear la fecha de hace 30 días en el formato deseado ("yyyy-mm-dd HH:MM:SS")
+            treinta_dias_antes_formateada = treinta_dias_antes.strftime('%Y-%m-%d %H:%M:%S')
+            print(treinta_dias_antes_formateada)
+
+            # Ejecutar la consulta para obtener los registros de hace 30 días o más
+            consulta = "SELECT * FROM jugadas WHERE fecha >= %s"
+            cursor.execute(consulta, (treinta_dias_antes_formateada,))
+
+            # Obtener los registros encontrados
+            registros = cursor.fetchall()
+
+            # Procesar los registros obtenidos (por ejemplo, imprimirlos)
+            #if registros != '':
+            for registro in registros:
+                #print(registro)
+                pass
+            #else:
+              #  print("Andaaaaaaaaaaaa pal caraaaaaaaajo")
+
+            cursor.close()
+
+        except mysql.connector.Error as err:
+            print("Error:", err)
+
+
+
+
+
 
 class RegistrarBanca(QMainWindow):
     def __init__(self):
@@ -1318,7 +1430,7 @@ class Addnumbers(QMainWindow):
         self.AnguilanuevePM.clicked.connect(lambda: self.button_clicked("anguilanuevepm"))
         self.CuartetanuevePM.clicked.connect(lambda: self.button_clicked("cuartetanuevepm"))
         self.FloridanuevePM.clicked.connect(lambda: self.button_clicked("floridanuevepm"))
-        self.floridadospm.clicked.connect(lambda: self.button_clicked("floridadospm"))
+        self.FloridadosPM.clicked.connect(lambda: self.button_clicked("floridadospm"))
         self.NewdiezPM.clicked.connect(lambda: self.button_clicked("newdiezpm"))
     def keyPressEvent(self, event):
             if event.key() == Qt.Key_Escape:
@@ -1444,7 +1556,7 @@ class Desactivar(QMainWindow):
         id_banca = self.id_banca.text()
         cursor = conexion.cursor()
         cursor.execute("SELECT activa FROM banca WHERE idbanca = %s", (id_banca, ))
-        deativated = cursor.fetchone()
+        deativated = cursor.fetchall()
         if deativated is not None:
             title = "!"
             icon = QMessageBox.Critical
@@ -1558,6 +1670,21 @@ class SucursalWindow(QMainWindow):
             ventanta_emergente_def(title, icon, text)
             destinatario = email_principal
             enviar_correo(destinatario, usuario, password) 
+
+class BlockNumbers(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        uic.loadUi("UI/numeros_bloqueados.ui", self)
+        id_banca = sesion_usuario.get('id_banca')
+        id_sucursal = sesion_usuario.get('id_sucursal')
+        cursor = conexion.cursor()
+        cursor.execute("SELECT * FROM bloqueado WHERE id_banca = %s AND id_sucursal = %s", (id_banca, id_sucursal))
+        numeros = cursor.fetchall()
+        if numeros is not None:
+            for i in range(len(numeros)):
+                item1 = QListWidgetItem(numeros[i][2])
+                self.bloqueados.addItem(item1)
+        
 
 
 if __name__ == "__main__":
