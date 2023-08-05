@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Números bloqueados</class>
+ <class>MainWindow</class>
  <widget class="QMainWindow" name="MainWindow">
   <property name="geometry">
    <rect>
@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Números bloqueados</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QLabel" name="label">
@@ -35,7 +35,7 @@
      <string>Números bloqueados</string>
     </property>
    </widget>
-   <widget class="QListWidget" name="bloqueados">
+   <widget class="QListWidget" name="block_numbers">
     <property name="geometry">
      <rect>
       <x>110</x>

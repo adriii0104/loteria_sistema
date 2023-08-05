@@ -82,25 +82,28 @@ def generar_recibo(nombre_banca ,added_elements, chosen_numbers, amount, total_p
         y_numeros_jugados -= 10  # Espacio vertical de 2 unidades entre elementos
 
     c.setFont("Helvetica-Bold", 7)
-    c.drawString(10 * mm, (altura_total - (47 + (elementos_agregados * altura_elemento))) * mm,
+    if (altura_loterias >= 32):
+        altura_loterias = 23
+        print(altura_loterias)
+    c.drawString(10 * mm, (altura_total - (31 + altura_loterias + (elementos_agregados * altura_elemento))) * mm,
                  f"TOTAL APOSTADO RD$:       {total_precio}")
     c.setFont("Helvetica", 5)
-    c.drawString(0 * mm, (altura_total - (42 + (elementos_agregados * altura_elemento))) * mm,
+    c.drawString(0 * mm, (altura_total - (27 + altura_loterias + (elementos_agregados * altura_elemento))) * mm,
                  f"- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ")
     
-    c.drawString(0 * mm, (altura_total - (50 + (elementos_agregados * altura_elemento))) * mm,
+    c.drawString(0 * mm, (altura_total - (35 + altura_loterias + (elementos_agregados * altura_elemento))) * mm,
                  f"- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ")
     
-    c.drawString(10 * mm, (altura_total - (55 + (elementos_agregados * altura_elemento))) * mm,
+    c.drawString(10 * mm, (altura_total - (40 + altura_loterias + (elementos_agregados * altura_elemento))) * mm,
                  f"REVISE SU TICKET")
     
-    c.drawString(10 * mm, (altura_total - (58 + (elementos_agregados * altura_elemento))) * mm,
+    c.drawString(10 * mm, (altura_total - (43 + altura_loterias + (elementos_agregados * altura_elemento))) * mm,
                  f"PASADO 15 MINUTOS NO SE ADMITEN DEVOLUCIONES")
     
-    c.drawString(10 * mm, (altura_total - (61 + (elementos_agregados * altura_elemento))) * mm,
+    c.drawString(10 * mm, (altura_total - (46 + altura_loterias + (elementos_agregados * altura_elemento))) * mm,
                  f"ESTE TICKET ES VALIDO POR 30 DIAS")
     
-    c.drawString(10 * mm, (altura_total - (66 + (elementos_agregados * altura_elemento))) * mm,
+    c.drawString(10 * mm, (altura_total - (49 + altura_loterias + (elementos_agregados * altura_elemento))) * mm,
                  f"GRACIAS POR PREFERIRNOS - SUERTE -")
 
     # Guardar el recibo y finalizar el lienzo del PDF

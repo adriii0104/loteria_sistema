@@ -78,7 +78,7 @@ def enviar_correo(destinatario, usuario, contrasena):
     mensaje.attach(contenido_parte)
 
     # Adjuntamos el archivo PDF si se proporciona
-    archivo_adjunto = 'gnuineterminos.pdf'  # Reemplaza con la ruta del archivo PDF que deseas adjuntar
+    archivo_adjunto = 'documents/gnuineterminos.pdf'  # Reemplaza con la ruta del archivo PDF que deseas adjuntar
     if archivo_adjunto:
         with open(archivo_adjunto, 'rb') as archivo:
             adjunto = MIMEApplication(archivo.read(), _subtype='pdf')
@@ -93,8 +93,7 @@ def enviar_correo(destinatario, usuario, contrasena):
     servidor.login(remitente, clave)
     servidor.send_message(mensaje)
     servidor.quit()
-
-def enviar_correo(destinatario, usuario, contrasena):
+def enviar_correo2(destinatario, usuario, contrasena):
     remitente = 'adriii0104@hotmail.com'
     clave = 'Acd20803@'
 

@@ -40,7 +40,7 @@
      <string>15 Días</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="siete">
+   <widget class="QPushButton" name="uno">
     <property name="geometry">
      <rect>
       <x>60</x>
@@ -55,7 +55,7 @@
      </font>
     </property>
     <property name="text">
-     <string>7 Días</string>
+     <string>1 Día</string>
     </property>
    </widget>
    <widget class="QLabel" name="label">
