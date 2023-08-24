@@ -71,7 +71,7 @@ color: black;
     <property name="geometry">
      <rect>
       <x>100</x>
-      <y>310</y>
+      <y>370</y>
       <width>251</width>
       <height>31</height>
      </rect>
@@ -94,7 +94,7 @@ border: 1px solid #2f81f7;
      <number>8</number>
     </property>
    </widget>
-   <widget class="QPushButton" name="F10">
+   <widget class="QPushButton" name="F11_2">
     <property name="geometry">
      <rect>
       <x>1420</x>
@@ -119,7 +119,7 @@ border: 1px solid #2f81f7;
      <string>F11</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="F11_2">
+   <widget class="QPushButton" name="F10">
     <property name="geometry">
      <rect>
       <x>1300</x>
@@ -474,7 +474,7 @@ border: 1px solid #2f81f7;
     <property name="geometry">
      <rect>
       <x>190</x>
-      <y>290</y>
+      <y>350</y>
       <width>91</width>
       <height>16</height>
      </rect>
@@ -496,7 +496,7 @@ border: 1px solid #2f81f7;
     <property name="geometry">
      <rect>
       <x>490</x>
-      <y>290</y>
+      <y>350</y>
       <width>91</width>
       <height>16</height>
      </rect>
@@ -518,7 +518,7 @@ border: 1px solid #2f81f7;
     <property name="geometry">
      <rect>
       <x>110</x>
-      <y>370</y>
+      <y>430</y>
       <width>91</width>
       <height>16</height>
      </rect>
@@ -543,7 +543,7 @@ border: 1px solid #2f81f7;
     <property name="geometry">
      <rect>
       <x>790</x>
-      <y>310</y>
+      <y>370</y>
       <width>161</width>
       <height>31</height>
      </rect>
@@ -568,7 +568,7 @@ border: 1px solid #2f81f7;
     <property name="geometry">
      <rect>
       <x>970</x>
-      <y>310</y>
+      <y>370</y>
       <width>51</width>
       <height>31</height>
      </rect>
@@ -1095,7 +1095,7 @@ border: 1px solid #2f81f7;
     <property name="geometry">
      <rect>
       <x>400</x>
-      <y>310</y>
+      <y>370</y>
       <width>251</width>
       <height>31</height>
      </rect>
@@ -1119,7 +1119,7 @@ border: 1px solid #2f81f7;
     <property name="geometry">
      <rect>
       <x>680</x>
-      <y>310</y>
+      <y>370</y>
       <width>91</width>
       <height>31</height>
      </rect>
@@ -1144,7 +1144,7 @@ border: 1px solid #2f81f7;
     <property name="geometry">
      <rect>
       <x>105</x>
-      <y>400</y>
+      <y>460</y>
       <width>461</width>
       <height>401</height>
      </rect>
@@ -1158,7 +1158,7 @@ border: 1px solid #2f81f7;
      <bool>true</bool>
     </property>
    </widget>
-   <widget class="QPushButton" name="ESC">
+   <widget class="QPushButton" name="F1">
     <property name="geometry">
      <rect>
       <x>220</x>
@@ -1205,7 +1205,7 @@ border: 1px solid #2f81f7;
      <string>SALIR</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="F1">
+   <widget class="QPushButton" name="ESC">
     <property name="geometry">
      <rect>
       <x>100</x>
@@ -1256,7 +1256,7 @@ border: 1px solid #2f81f7;
     <property name="geometry">
      <rect>
       <x>560</x>
-      <y>400</y>
+      <y>460</y>
       <width>481</width>
       <height>401</height>
      </rect>
@@ -1271,7 +1271,7 @@ border: 1px solid #2f81f7;
     <property name="geometry">
      <rect>
       <x>570</x>
-      <y>370</y>
+      <y>430</y>
       <width>91</width>
       <height>21</height>
      </rect>
@@ -1296,7 +1296,7 @@ border: 1px solid #2f81f7;
     <property name="geometry">
      <rect>
       <x>560</x>
-      <y>800</y>
+      <y>860</y>
       <width>241</width>
       <height>31</height>
      </rect>
@@ -1319,7 +1319,7 @@ border: 1px solid #52057B;
     <property name="geometry">
      <rect>
       <x>560</x>
-      <y>840</y>
+      <y>900</y>
       <width>131</width>
       <height>16</height>
      </rect>
@@ -1341,7 +1341,7 @@ border: 1px solid #52057B;
     <property name="geometry">
      <rect>
       <x>800</x>
-      <y>840</y>
+      <y>900</y>
       <width>191</width>
       <height>16</height>
      </rect>
@@ -1363,7 +1363,7 @@ border: 1px solid #52057B;
     <property name="geometry">
      <rect>
       <x>970</x>
-      <y>350</y>
+      <y>410</y>
       <width>81</width>
       <height>16</height>
      </rect>
@@ -1385,7 +1385,7 @@ border: 1px solid #52057B;
     <property name="geometry">
      <rect>
       <x>800</x>
-      <y>800</y>
+      <y>860</y>
       <width>241</width>
       <height>31</height>
      </rect>
@@ -1565,17 +1565,17 @@ background: transparent;</string>
      <string>LIMPIAR LOT</string>
     </property>
    </widget>
-   <widget class="QListWidget" name="listWidget">
+   <widget class="QListWidget" name="selected_lotteries_list">
     <property name="geometry">
      <rect>
       <x>100</x>
-      <y>160</y>
+      <y>210</y>
       <width>941</width>
       <height>101</height>
      </rect>
     </property>
    </widget>
-   <widget class="QPushButton" name="F2_2">
+   <widget class="QPushButton" name="F3">
     <property name="geometry">
      <rect>
       <x>460</x>
@@ -1622,10 +1622,32 @@ background: transparent;</string>
      <string>CONTACTO</string>
     </property>
    </widget>
+   <widget class="QLabel" name="label_23">
+    <property name="geometry">
+     <rect>
+      <x>490</x>
+      <y>190</y>
+      <width>181</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Montserrat</family>
+      <pointsize>8</pointsize>
+      <weight>50</weight>
+      <italic>false</italic>
+      <bold>false</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>LOTERIAS SELECCIONADAS</string>
+    </property>
+   </widget>
    <zorder>label_19</zorder>
    <zorder>numero</zorder>
-   <zorder>F10</zorder>
    <zorder>F11_2</zorder>
+   <zorder>F10</zorder>
    <zorder>F9</zorder>
    <zorder>F8</zorder>
    <zorder>F7</zorder>
@@ -1668,9 +1690,9 @@ background: transparent;</string>
    <zorder>amount</zorder>
    <zorder>siguiente</zorder>
    <zorder>lista_jugadas</zorder>
-   <zorder>ESC</zorder>
-   <zorder>label_14</zorder>
    <zorder>F1</zorder>
+   <zorder>label_14</zorder>
+   <zorder>ESC</zorder>
    <zorder>label_15</zorder>
    <zorder>lista_montos</zorder>
    <zorder>label_16</zorder>
@@ -1685,9 +1707,10 @@ background: transparent;</string>
    <zorder>FloridadosPM</zorder>
    <zorder>F2</zorder>
    <zorder>label_21</zorder>
-   <zorder>listWidget</zorder>
-   <zorder>F2_2</zorder>
+   <zorder>selected_lotteries_list</zorder>
+   <zorder>F3</zorder>
    <zorder>label_22</zorder>
+   <zorder>label_23</zorder>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>

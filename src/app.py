@@ -9,26 +9,24 @@ from drawticket import generar_recibo
 import uuid
 from datetime import datetime, timedelta
 import hashlib
-from send_mail import enviar_correo, enviar_correo2
+from send_mail import enviar_correo, enviar_correo2, enviar_correo_error, enviar_correo_adeudo
+import random
+import time
+from config import connection_intent
+from dict import sesion_usuario
 
-conexion = mysql.connector.connect(
-    host = 'localhost',
-    user =  'root',
-    password = '',
-    db = 'lotteria_genuine'
-)
-conexion2 = mysql.connector.connect(
-    host = 'localhost',
-    user = 'root',
-    password = '',
-    db = 'resultados'
-)
-sesion_usuario = {}
+
+
+
 
 class LoginWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         uic.loadUi("UI/inicio.ui", self)
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.check_connection)
+        self.timer.start(55)
+        self.msj = False  # Inicializar la variable como atributo de la instancia
         self.Botonlogin.clicked.connect(self.login)
         self.user.returnPressed.connect(self.focus)
         self.password.returnPressed.connect(self.login)
@@ -44,6 +42,26 @@ class LoginWindow(QMainWindow):
         icon = QIcon("./IMGS/Safeimagekit-resized-img (3).png")  # Reemplaza con la ruta de tu archivo de icono
         self.setWindowIcon(icon)
 
+    def check_connection(self):
+        connection_prueba = connection_intent()
+
+        if connection_prueba:
+            if not self.msj:
+                self.msj = True
+                title = "Conexión exitosa"
+                icon = QMessageBox.Information
+                text = "Conexión exitosa!"
+                ventanta_emergente_def(title, icon, text)
+                self.conexion, self.conexion2 = connection_intent()
+                
+        else:
+            title = "Conexión rechazada"
+            icon = QMessageBox.Information
+            text = "Conexión rechazada intentando reconectar."
+            ventanta_emergente_def(title, icon, text)
+
+
+
     def focus(self):
         self.password.setFocus()
 
@@ -57,82 +75,86 @@ class LoginWindow(QMainWindow):
             self.login_window.show()
 
     def login(self):
-        usuario = self.user.text()
-        usuario.lower()
-        password = self.password.text()
-        cursor = conexion.cursor()
-        cursor.execute("SELECT * FROM auth WHERE user = %s", (usuario, ))
-        usuario_log = cursor.fetchone()
-
-        if usuario == '' or password == '':
-                title = "Error"
-                icon = QMessageBox.Critical
-                text = "Por favor ingrese el usuario o la contraseña"
-                ventanta_emergente_def(title, icon, text)
-        elif usuario_log is not None:
-            password_data = usuario_log[4]
-            if password == password_data:
-                self.close()
-                if usuario_log[3] == "admin":
-                    self.hide()
-                    if self.admin_window is None:
-                        self.admin_window = Adminwindow()
-                        adjustWindowToScreen(self.admin_window)
-                    self.admin_window.show()
-                elif usuario_log[3] == "subir_numeros":
+        try:
+            usuario = self.user.text()
+            usuario.lower()
+            password = self.password.text()
+            cursor = self.conexion.cursor()
+            cursor.execute("SELECT * FROM auth WHERE user = %s", (usuario, ))
+            usuario_log = cursor.fetchone()
+    
+            if usuario == '' or password == '':
+                    title = "Error"
+                    icon = QMessageBox.Critical
+                    text = "Por favor ingrese el usuario o la contraseña"
+                    ventanta_emergente_def(title, icon, text)
+            elif usuario_log is not None:
+                password_data = usuario_log[4]
+                if password == password_data:
                     self.close()
-                    if self.add_numbers_window is None:
-                        self.add_numbers_window = Addnumbers()
-                    self.add_numbers_window.show()
+                    if usuario_log[3] == "admin":
+                        self.close()
+                        if self.admin_window is None:
+                            self.admin_window = Adminwindow()
+                        self.admin_window.show()
+                    elif usuario_log[3] == "subir_numeros":
+                        self.close()
+                        if self.add_numbers_window is None:
+                            self.add_numbers_window = Addnumbers()
+                        self.add_numbers_window.show()
+                    else:
+                        cursor2 = self.conexion.cursor()
+                        cursor3 = self.conexion.cursor()
+                        cursor2.execute("SELECT * FROM banca WHERE idbanca = %s and id_sucursal = %s", (usuario_log[1], usuario_log[2]))
+                        datos = cursor2.fetchone()
+                        sesion_usuario['id_banca'] = datos[1]
+                        sesion_usuario['id_sucursal'] = datos[2]
+                        sesion_usuario['nombre_banca'] = datos[3]
+                        sesion_usuario['pago_pale'] = datos[11]
+                        sesion_usuario['pago_tripleta'] = datos[12]
+                        sesion_usuario['puntos_primera'] = datos[13]
+                        sesion_usuario['puntos_segunda'] = datos[14]
+                        sesion_usuario['puntos_tercera'] = datos[15]
+                        sesion_usuario['activa'] = datos[16]
+                        activa = sesion_usuario.get('activa')
+                        cursor3.execute("SELECT * FROM informacion_banca WHERE id_banca = %s", (usuario_log[1], ))
+                        informacion = cursor3.fetchone()
+                        sesion_usuario['numero_principal'] = informacion[3]
+                        cursor3.close()
+                        self.desactivada = None
+                        if activa == "NO":
+                            if self.desactivada is None:
+                                self.desactivada = desactivada()
+                            self.desactivada.show()
+                        elif self.bodywindow is None:
+                                self.bodywindow = Bodywindow()
+                                adjustWindowToScreen(self.bodywindow)
+                                self.bodywindow.show()
                 else:
-                    cursor2 = conexion.cursor()
-                    cursor3 = conexion.cursor()
-                    cursor2.execute("SELECT * FROM banca WHERE idbanca = %s and id_sucursal = %s", (usuario_log[1], usuario_log[2]))
-                    datos = cursor2.fetchone()
-                    sesion_usuario['id_banca'] = datos[1]
-                    sesion_usuario['id_sucursal'] = datos[2]
-                    sesion_usuario['nombre_banca'] = datos[3]
-                    sesion_usuario['pago_pale'] = datos[11]
-                    sesion_usuario['pago_tripleta'] = datos[12]
-                    sesion_usuario['puntos_primera'] = datos[13]
-                    sesion_usuario['puntos_segunda'] = datos[14]
-                    sesion_usuario['puntos_tercera'] = datos[15]
-                    sesion_usuario['activa'] = datos[16]
-                    activa = sesion_usuario.get('activa')
-                    cursor3.execute("SELECT * FROM informacion_banca WHERE id_banca = %s", (usuario_log[1], ))
-                    informacion = cursor3.fetchone()
-                    sesion_usuario['numero_principal'] = informacion[3]
-                    cursor3.close()
-                    self.desactivada = None
-                    if activa == "NO":
-                        if self.desactivada is None:
-                            self.desactivada = desactivada()
-                        self.desactivada.show()
-                    elif self.bodywindow is None:
-                            self.bodywindow = Bodywindow()
-                            adjustWindowToScreen(self.bodywindow)
-                            self.bodywindow.show()
+                    title = "Error"
+                    icon = QMessageBox.Critical
+                    text = "Nombre de usuario o contraseña incorrectos"
+                    ventanta_emergente_def(title, icon, text)
             else:
                 title = "Error"
                 icon = QMessageBox.Critical
                 text = "Nombre de usuario o contraseña incorrectos"
                 ventanta_emergente_def(title, icon, text)
-        else:
-            title = "Error"
-            icon = QMessageBox.Critical
-            text = "Nombre de usuario o contraseña incorrectos"
-            ventanta_emergente_def(title, icon, text)
-
+        except mysql.connector.Error as e:
+            print("Error al conectarse con la base de datos")
     
 
 class Bodywindow(QMainWindow):
     def __init__(self):
         super().__init__()
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.check_connection)
+        self.timer.start(55)  # 550 ms = 1 segundo
         self.selected_lotteries = 0
         uic.loadUi("UI/body.ui", self)
-
-        #este es el area de los botones con conexiones a funciones. ---------------------------------
+        #este es el area de los botones con self.conexiones a funciones. ---------------------------------
         self.siguiente.clicked.connect(self.calculate)
+        self.msj = False  # Inicializar la variable como atributo de la instancia
         self.amount.returnPressed.connect(self.calculate)  # Conectar la tecla Enter en el campo "monto" al método "calculate"
         self.numero.returnPressed.connect(self.calculate)
         self.lista_jugadas.itemClicked.connect(self.delete_item)
@@ -141,17 +163,27 @@ class Bodywindow(QMainWindow):
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.actualizar_hora)
         self.timer.start(1000)  # 1000 ms = 1 segundo
-        self.total_una_loteria.setText('0')
-        self.total_jugado.setText('0')
+        self.total_una_loteria.setText('0.00')
+        self.total_jugado.setText('0.00')
         self.ESC.clicked.connect(self.cerrar)
-        self.F11.clicked.connect(self.limpiar)
+        self.F1.clicked.connect(self.reiniciar)
+        self.F2.clicked.connect(self.limpiar_lot)
+        self.F3.clicked.connect(self.emergency)
+        self.F4.clicked.connect(self.devolucion)
+        self.F5.clicked.connect(self.restart)
         self.F6.clicked.connect(self.copy)
+        self.F7.clicked.connect(self.cobrar)
+        #self.F8.clicked.connect(self)
+        self.F9.clicked.connect(self.bloqueados)
+        self.F10.clicked.connect(self.imprimir_ticket)
+        self.F11.clicked.connect(self.limpiar)
+        self.F11_2.clicked.connect(self.limpiar)
         self.numero.setValidator(QtGui.QIntValidator())
         self.amount.setValidator(QtGui.QIntValidator())
         id_banca = sesion_usuario.get('id_banca')
         nombre_banca = sesion_usuario.get('nombre_banca')
-
-
+        self.id_banca = sesion_usuario.get('id_banca')
+        self.id_sucursal = sesion_usuario.get('id_sucursal')
         #Fin. ---------------------------------
         self.adjustToScreen()
         self.setWindowTitle(nombre_banca)
@@ -160,13 +192,59 @@ class Bodywindow(QMainWindow):
         self.body_window = None
         self.cobrar_ticket = None
         self.list_view = self.findChild(QListView, "lista_de_jugadas")  # Reemplaza "your_list_view" con el nombre de objeto del QListView en Qt Designer
-
-
-        
         for name in checkbox_names:
             checkbox = self.findChild(QCheckBox, name)
             if checkbox:
                 checkbox.stateChanged.connect(self.checkbox_state_changed)
+
+    def check_connection(self):
+        connection_prueba = connection_intent()
+        if connection_prueba:
+            self.conexion, self.conexion2 = connection_intent()
+            
+        else:
+            title = "Conexión rechazada"
+            icon = QMessageBox.Information
+            text = "Conexión rechazada intentando reconectar."
+            ventanta_emergente_def(title, icon, text)
+
+
+    def emergency(self):     
+        title = "INFORMACION"
+        icon = QMessageBox.Information
+        text = f"Número de teléfono: {sesion_usuario['numero_principal']} debido a cualquier emergencia no dudes en contactar."
+        ventanta_emergente_def(title, icon, text)
+    def reiniciar(self):
+        self.close()
+        if self.login_window is None:
+            self.login_window = LoginWindow()
+        self.login_window.show()
+    def limpiar_lot(self):
+        checkboxes = self.findChildren(QCheckBox)
+        for checkbox in checkboxes:
+            checkbox.setChecked(False)
+    def devolucion(self):
+        self.devolucion_window = None
+        if self.devolucion_window is None:
+            self.devolucion_window = DevolucionWindow()
+        self.devolucion_window.show()
+    def restart(self):
+        self.close()
+        if self.body_window is None:
+            self.body_window = Bodywindow()
+        self.body_window.show()
+    def cobrar(self):
+        if self.cobrar_ticket is None:
+            self.cobrar_ticket = CobrarTicketWindow()
+        self.cobrar_ticket.show()
+    def bloqueados(self):
+        self.block_numbers = None
+        if self.block_numbers is None:
+            self.block_numbers = BlockNumbers()
+        self.block_numbers.show()
+
+
+
     def actualizar_hora(self):
         # Obtener la hora actual
         hora_actual = QDateTime.currentDateTime().toString('HH:mm:ss')
@@ -223,12 +301,13 @@ class Bodywindow(QMainWindow):
                     self.numero.setFocus()
                     self.check_balance(monto)
                     if totaljugado != '':
-                        totalhoy = float(totaljugado)
+                        numero_for_replace = totaljugado.replace(',', '')
+                        totalhoy = float(numero_for_replace)
                     else:
                         totalhoy = 0
                     if totalhoy <= 0:
                         if self.selected_lotteries <= 0:
-                            self.total_jugado.setText(str(0))
+                            self.total_jugado.setText(str('0.00'))
                         else:
                             totaltoday = float(monto) * float(self.selected_lotteries)
                             numero_formateado = "{:,.2f}".format(totaltoday)
@@ -271,12 +350,13 @@ class Bodywindow(QMainWindow):
                     self.amount.setText('')
                     self.check_balance(monto)
                     if totaljugado != '':
-                        totalhoy = float(totaljugado)
+                        number_for_replace = totaljugado.replace(',', '')
+                        totalhoy = float(number_for_replace)
                     else:
                         totalhoy = 0
                     if totalhoy <= 0:
                         if self.selected_lotteries <= 0:
-                            self.total_jugado.setText(str(0))
+                            self.total_jugado.setText(str('0.00'))
                         else:
                             totaltoday = float(monto) * float(self.selected_lotteries)
                             numero_formateado = "{:,.2f}".format(totaltoday)
@@ -324,7 +404,7 @@ class Bodywindow(QMainWindow):
                         totalhoy = 0
                     if totalhoy <= 0:
                         if self.selected_lotteries <= 0:
-                            self.total_jugado.setText(str(0))
+                            self.total_jugado.setText(str('0.00'))
                         else:
                             totaltoday = float(monto) * float(self.selected_lotteries)
                             numero_formateado = "{:,.2f}".format(totaltoday)
@@ -376,7 +456,7 @@ class Bodywindow(QMainWindow):
                         totalhoy = 0
                     if totalhoy <= 0:
                         if self.selected_lotteries <= 0:
-                            self.total_jugado.setText(str(0))
+                            self.total_jugado.setText(str('0.00'))
                         else:
                             totaltoday = float(monto) * float(self.selected_lotteries)
                             numero_formateado = "{:,.2f}".format(totaltoday)
@@ -428,7 +508,7 @@ class Bodywindow(QMainWindow):
                         totalhoy = 0
                     if totalhoy <= 0:
                         if self.selected_lotteries <= 0:
-                            self.total_jugado.setText(str(0))
+                            self.total_jugado.setText(str('0.00'))
                         else:
                             totaltoday = float(monto) * float(self.selected_lotteries)
                             numero_formateado = "{:,.2f}".format(totaltoday)
@@ -481,7 +561,7 @@ class Bodywindow(QMainWindow):
                         totalhoy = 0
                     if totalhoy <= 0:
                         if self.selected_lotteries <= 0:
-                            self.total_jugado.setText(str(0))
+                            self.total_jugado.setText(str('0.00'))
                         else:
                             totaltoday = float(monto) * float(self.selected_lotteries)
                             numero_formateado = "{:,.2f}".format(totaltoday)
@@ -535,7 +615,7 @@ class Bodywindow(QMainWindow):
                         totalhoy = 0
                     if totalhoy <= 0:
                         if self.selected_lotteries <= 0:
-                            self.total_jugado.setText(str(0))
+                            self.total_jugado.setText(str('0.00'))
                         else:
                             totaltoday = float(monto) * float(self.selected_lotteries)
                             numero_formateado = "{:,.2f}".format(totaltoday)
@@ -577,8 +657,8 @@ class Bodywindow(QMainWindow):
     def limpiar(self):
             self.lista_jugadas.clear()
             self.lista_montos.clear()
-            self.total_una_loteria.setText('0')
-            self.total_jugado.setText('0')
+            self.total_una_loteria.setText('0.00')
+            self.total_jugado.setText('0.00')
 
 
     def checkbox_state_changed(self, state):
@@ -595,7 +675,9 @@ class Bodywindow(QMainWindow):
 
             total_jugado = self.total_jugado.text()
             if total_jugado:
-                jugado = float(total_jugado)
+                texto_replace = total_jugado.replace(',', '')
+                numero = float(texto_replace)
+                jugado = float(numero)
                 total_jugado1 = total * self.selected_lotteries
             else:
                 jugado = 0
@@ -605,19 +687,26 @@ class Bodywindow(QMainWindow):
 
             # Imprimir nombre del checkbox seleccionado
             checkbox_name = checkbox.text()
+            print(checkbox_name)
+            item = QListWidgetItem(checkbox_name)
+            self.selected_lotteries_list.addItem(item)
             checkbox_selected_names.append(checkbox_name)
             # Verificar si el valor del checkbox seleccionado existe en el diccionario y obtener su clave
             clave_del_checkbox = obtener_clave_por_valor(checkbox_names, checkbox_name)
             checkbox_selected_lotteries.append(clave_del_checkbox)
             # Imprimir la clave del checkbox seleccionado
         else:
-            self.selected_lotteries -= 1
-            total = 0
             checkbox_name = checkbox.text()
-            checkbox_selected_names.remove(checkbox_name)
             clave_del_checkbox = obtener_clave_por_valor(checkbox_names, checkbox_name)
-            checkbox_selected_lotteries.remove(clave_del_checkbox) 
-
+            for i, name in enumerate(checkbox_selected_lotteries):
+                item = name
+                if item == clave_del_checkbox:
+                    row_index = i
+                    self.selected_lotteries_list.takeItem(row_index)
+            self.selected_lotteries -= 1
+            checkbox_selected_names.remove(checkbox_name)
+            checkbox_selected_lotteries.remove(clave_del_checkbox)
+            total = 0
 
             for i in range(self.lista_montos.count()):
                 item = self.lista_montos.item(i)
@@ -628,7 +717,8 @@ class Bodywindow(QMainWindow):
 
             total_jugado = self.total_jugado.text()
             if total_jugado:
-                jugado = float(total_jugado)
+                number_for_replce = total_jugado.replace(',', '')
+                jugado = float(number_for_replce)
                 total_jugado1 = total * self.selected_lotteries
             else:
                 jugado = 0
@@ -664,48 +754,63 @@ class Bodywindow(QMainWindow):
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Escape:
             self.close()
+        if event.key() == Qt.Key_Shift:
+            self.amount.setFocus()
         if event.key() == Qt.Key_F1:
-            self.close()
-            if self.login_window is None:
-                self.login_window = LoginWindow()
-            self.login_window.show()
+            self.reiniciar()
         if event.key() == Qt.Key_F2:
-            checkboxes = self.findChildren(QCheckBox)
-            for checkbox in checkboxes:
-                checkbox.setChecked(False)
+            self.limpiar_lot()
         if event.key() == Qt.Key_F3:
-            title = "INFORMACION"
-            icon = QMessageBox.Information
-            text = f"Número de teléfono: {sesion_usuario['numero_principal']} debido a cualquier emergencia no dudes en contactar."
-            ventanta_emergente_def(title, icon, text)
+            self.emergency
         if event.key() ==Qt.Key_F4:
-            self.devolucion_window = None
-            if self.devolucion_window is None:
-                self.devolucion_window = DevolucionWindow()
-            self.devolucion_window.show()
+            self.devolucion()
         if event.key() == Qt.Key_F5:
-            self.close()
-            if self.body_window is None:
-                self.body_window = Bodywindow()
-            self.body_window.show()
+            self.restart()
         if event.key() == Qt.Key_F6:
             self.copy()
         if event.key() == Qt.Key_F7:
-            if self.cobrar_ticket is None:
-                self.cobrar_ticket = CobrarTicketWindow()
-            self.cobrar_ticket.show()
+            self.cobrar()
         if event.key() == Qt.Key_F11:
             self.lista_jugadas.clear()
             self.lista_montos.clear()
-            self.total_una_loteria.setText('0')
-            self.total_jugado.setText('0')
+            self.total_una_loteria.setText('0.00')
+            self.total_jugado.setText('0.00')
         if event.key() == Qt.Key_F9:
-            self.block_numbers = None
-            if self.block_numbers is None:
-                self.block_numbers = BlockNumbers()
-            self.block_numbers.show()
+            self.bloqueados()
         if event.key() == Qt.Key_F10:
                 self.imprimir_ticket()
+        if event.key() == Qt.Key_F12:
+            cursor = self.conexion.cursor()
+            cursor.execute("SELECT numeros FROM jugadas WHERE id_banca = %s AND id_sucursal = %s", (self.id_banca, self.id_sucursal))
+            jugadas = cursor.fetchall()
+
+            numbers_count = {}  # Diccionario para contar las ocurrencias de cada número
+            print(jugadas)
+            if jugadas != []:
+                for i in range(len(jugadas)):
+                    for_work = jugadas[i][0]
+                    for_work1 = for_work.replace('-', '')
+                    if for_work1 in numbers_count:
+                        numbers_count[for_work1] += 1
+                    else:
+                        numbers_count[for_work1] = 1
+                most_common_number = max(numbers_count, key=numbers_count.get)
+                most_common_count = numbers_count[most_common_number]
+                if most_common_count > 75:
+                    title = "Informacion"
+                    icon = QMessageBox.Information
+                    text = f"El número peligrando del día es: {most_common_number}: con {most_common_count} jugadas"
+                    ventanta_emergente_def(title, icon, text)
+                else:
+                    title = "Informacion"
+                    icon = QMessageBox.Information
+                    text = "Por el momento no hay jugadas peligrosas."
+                    ventanta_emergente_def(title, icon, text)
+            else:
+                title = "Informacion"
+                icon = QMessageBox.Information
+                text = "Por el momento no hay jugadas peligrosas."
+                ventanta_emergente_def(title, icon, text)
 
 
     #falta todvia agregarle lo de los numeros, falta todavia integrarle el conteo, todavia hay que pasarlo a imprimir. (pendiente)
@@ -713,49 +818,44 @@ class Bodywindow(QMainWindow):
         nombre_banca = sesion_usuario.get('nombre_banca')
         id_banca = sesion_usuario.get('id_banca')
         id_sucursal = sesion_usuario.get('id_sucursal')
-        cursor = conexion.cursor()
+        cursor = self.conexion.cursor()
         cursor.execute("SELECT * FROM bloqueado WHERE id_banca = %s and id_sucursal = %s", (id_banca, id_sucursal))
         bloqueado = cursor.fetchall()
         cursor.close()
-        cursor2 = conexion.cursor()
-        cursor3 = conexion.cursor()
+        cursor2 = self.conexion.cursor()
+        cursor3 = self.conexion.cursor()
         list_numbers = []
         condition = False
         z = 0
         cantidad_permitida = 0
+        resultado = 0
+        randomss = str(random.randint(000000000000,999999999999))
+        randoms = f"{randomss:012}"  # Rellena con ceros a la izquierda hasta completar 12 dígitos
         #numero_bloqueado_analicts = numero_bloqueado[2]
-        for i in range(self.lista_montos.count()):
-            items = self.lista_jugadas.item(i)
-            jugadas_texto = items.text()
-            resultado = re.sub(r'[^\d-]', '', jugadas_texto)
-        cursor2.execute("SELECT * FROM jugadas WHERE id_banca = %s and id_sucursal = %s and numeros = %s", (id_banca, id_sucursal, resultado))
-        resultado2 = cursor2.fetchall()
-        cursor2.close()
-        cursor3.execute("SELECT * FROM restringido WHERE id_banca = %s and id_sucursal = %s and numero = %s", (id_banca, id_sucursal, resultado))
-        restringido = cursor3.fetchall()
-        for x in range(len(bloqueado)):
-            list_numbers.append(bloqueado[x][2])
-        if restringido != []:
-            for z in range(len(resultado2)):
-                hoy = datetime.now()
-                dia = int(hoy.strftime("%d"))
-            z += 1
-            condition = True
-            for n in range(len(restringido)):
-                cantidad_permitida = int(restringido[n][3])
-                fecha = int(restringido[n][4])
-        if condition == True and z >= cantidad_permitida:
-            if z >= cantidad_permitida and dia <= fecha:
-                    title = "Error"
-                    icon = QMessageBox.Critical
-                    text = f"Esta jugada no está disponible debido a que se agotó la disponibilidad de los números. error(101)"
-                    ventanta_emergente_def(title, icon, text)
-        elif resultado in list_numbers:
-            title = "Error"
-            icon = QMessageBox.Critical
-            text = f"La jugada no pudo ser realizada debido que el numero {resultado} no está disponible para ventas."
-            ventanta_emergente_def(title, icon, text)
-        elif len(self.lista_montos) == 0:
+        if len(self.lista_montos) > 0:
+            for i in range(self.lista_montos.count()):
+                items = self.lista_jugadas.item(i)
+                jugadas_texto = items.text()
+                resultado = re.sub(r'[^\d-]', '', jugadas_texto)
+            cursor2.execute("SELECT * FROM jugadas WHERE id_banca = %s and id_sucursal = %s and numeros = %s", (id_banca, id_sucursal, resultado))
+            resultado2 = cursor2.fetchall()
+            cursor2.close()
+            cursor3.execute("SELECT * FROM restringido WHERE id_banca = %s and id_sucursal = %s and numero = %s", (id_banca, id_sucursal, resultado))
+            restringido = cursor3.fetchall()
+            for x in range(len(bloqueado)):
+                list_numbers.append(bloqueado[x][2])
+            if restringido != []:
+                for z in range(len(resultado2)):
+                    hoy = datetime.now()
+                    dia = int(hoy.strftime("%d"))
+                    fecha_database = (resultado2[z][6])
+                    fecha_data = int(fecha_database[:2])
+                z += 1
+                condition = True
+                for n in range(len(restringido)):
+                    cantidad_permitida = int(restringido[n][3])
+                    fecha = int(restringido[n][4])
+        if len(self.lista_montos) == 0:
             title = "Error"
             icon = QMessageBox.Critical
             text = "Antes de imprimir debes escribir las jugadas."
@@ -764,6 +864,17 @@ class Bodywindow(QMainWindow):
             title = "Error"
             icon = QMessageBox.Critical
             text = "Debe elegir al menos una loteria."
+            ventanta_emergente_def(title, icon, text)
+        elif condition == True and z >= cantidad_permitida:
+            if z >= cantidad_permitida and dia <= fecha:
+                title = "Error"
+                icon = QMessageBox.Critical
+                text = f"Esta jugada no está disponible debido a que se agotó la disponibilidad de los números. error(101)"
+                ventanta_emergente_def(title, icon, text)
+        elif resultado in list_numbers:
+            title = "Error"
+            icon = QMessageBox.Critical
+            text = f"La jugada no pudo ser realizada debido que el numero {resultado} no está disponible para ventas."
             ventanta_emergente_def(title, icon, text)
         else:
             chosen_numbers = []
@@ -775,7 +886,11 @@ class Bodywindow(QMainWindow):
             ticket = "BFSSP01"
             idticket = nuevo.upper() + ticket
             archivo_pdf_azar = nuevo + ".pdf"
-            total_precio = float(self.total_jugado.text())
+            total_precio1 = (self.total_jugado.text())
+            total_precio_convert = total_precio1.replace(',', '')
+            total_precio = float(total_precio_convert)
+            day = today.day
+
 
             for i in range(self.lista_montos.count()):
                 item = self.lista_montos.item(i)
@@ -797,7 +912,7 @@ class Bodywindow(QMainWindow):
 
                     # Convertir la hora del diccionario a objeto datetime (con formato de 12 horas)
                     hora_checkbox = datetime.strptime(hora_checkbox_str, "%I:%M %p")
-
+            
                     # Ajustar la fecha del objeto hora_checkbox con la fecha actual para comparar solo las horas
                     hora_checkbox = hora_checkbox.replace(year=hora_actual.year, month=hora_actual.month, day=hora_actual.day)
 
@@ -829,16 +944,16 @@ class Bodywindow(QMainWindow):
                     amount_for_database_text = amount_for_database.text()
                     numeros_con_signo = re.sub(r"[^\d-]", "", item_for_database_text)
 
-                    cursor = conexion.cursor()
-                    cursor.execute("INSERT INTO jugadas VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
-                                   (id_banca, id_sucursal, idticket, numeros_con_signo, amount_for_database_text, lotteries_for_database, datetime.now().strftime('%d/%m/%Y - %I:%M:%S %p'), "NO", checkbox_name_loterries))
+                    cursor = self.conexion.cursor()
+                    cursor.execute("INSERT INTO jugadas VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                                   (id_banca, id_sucursal, idticket, numeros_con_signo, amount_for_database_text, lotteries_for_database, datetime.now().strftime('%d/%m/%Y - %I:%M:%S %p'), "NO", checkbox_name_loterries, day, randoms))
                     cursor.close()
-                    cursor2 = conexion.cursor()
+                    cursor2 = self.conexion.cursor()
                     cursor2.execute("UPDATE ganancias SET numeros_vendidos = numeros_vendidos + 1, venta_diaria = venta_diaria + %s, venta_total = venta_total + %s WHERE id_banca = %s and id_sucursal = %s", (amount_for_database_text, amount_for_database_text, id_banca, id_sucursal))
                     cursor2.close()
-                    conexion.commit()
+                    self.conexion.commit()
 
-            generar_recibo(nombre_banca, added_elements, chosen_numbers, amounts, total_precio, archivo_pdf_azar, idticket, checkbox_selected_names)
+            generar_recibo(nombre_banca, added_elements, chosen_numbers, amounts, total_precio, archivo_pdf_azar, idticket, checkbox_selected_names, randoms)
             self.limpiar_ventana()
 
 
@@ -848,8 +963,8 @@ class Bodywindow(QMainWindow):
         # Deseleccionar todos los checkboxes encontrados
         for checkbox in checkboxes:
             checkbox.setChecked(False)
-        self.total_jugado.setText('0')
-        self.total_una_loteria.setText('0')
+        self.total_jugado.setText('0.00')
+        self.total_una_loteria.setText('0.00')
         self.lista_montos.clear()
         self.lista_jugadas.clear()
 
@@ -870,10 +985,10 @@ class Bodywindow(QMainWindow):
                     resultado_actual -= monto
                     resultado_jugadas = float(self.total_una_loteria.text().replace(',', ''))
                     resultado_jugadas -= monto
-                    self.total_una_loteria.setText(str(resultado_jugadas))
+                    numero_formateado = "{:,.2f}".format(resultado_jugadas)
+                    self.total_una_loteria.setText(str(numero_formateado))
                     total_una = float(self.total_una_loteria.text().replace(',', ''))
                     for i in range (len(checkbox_selected_lotteries) + 1):
-                        print(i)
                         total_calculate = total_una * i
                     if resultado_actual >= 0:
                         numero_formateado = "{:,.2f}".format(total_calculate)
@@ -889,20 +1004,37 @@ class Bodywindow(QMainWindow):
         )
                 if resultado_dialogo == QDialog.Accepted:
                                 # Aquí deberías realizar la lógica para copiar el ticket utilizando respuesta_usuario (el ID del ticket ingresado)
-                                cursor = conexion.cursor()
+                                cursor = self.conexion.cursor()
                                 cursor.execute("SELECT * FROM jugadas WHERE id_ticket = %s and id_sucursal = %s and id_banca = %s", (respuesta_usuario, id_sucursal, id_banca))
                                 id_ticket = cursor.fetchall()
                                 if id_ticket != []:
                                     for i in range(len(id_ticket)):
                                             jugada = (id_ticket[i][3])
                                             monto = (id_ticket[i][4])
-                                            item_text = f"{jugada}"
-                                            item_text1 = f"{monto}"
-                                            item = QListWidgetItem(item_text)
-                                            item1 = QListWidgetItem(item_text1)
-                                            self.lista_montos.addItem(item1)
-                                            self.lista_jugadas.addItem(item)
-                                            self.check_balance(monto)
+                                            if len(jugada) == 2:
+                                                item_text = f"{jugada} (Quiniela)"
+                                                item_text1 = f"{monto}"
+                                                item = QListWidgetItem(item_text)
+                                                item1 = QListWidgetItem(item_text1)
+                                                self.lista_montos.addItem(item1)
+                                                self.lista_jugadas.addItem(item)
+                                                self.check_balance(monto)
+                                            elif len(jugada) == 5:
+                                                item_text = f"{jugada} (Palé)"
+                                                item_text1 = f"{monto}"
+                                                item = QListWidgetItem(item_text)
+                                                item1 = QListWidgetItem(item_text1)
+                                                self.lista_montos.addItem(item1)
+                                                self.lista_jugadas.addItem(item)
+                                                self.check_balance(monto)
+                                            elif len(jugada) == 8:
+                                                item_text = f"{jugada} (Tripleta)"
+                                                item_text1 = f"{monto}"
+                                                item = QListWidgetItem(item_text)
+                                                item1 = QListWidgetItem(item_text1)
+                                                self.lista_montos.addItem(item1)
+                                                self.lista_jugadas.addItem(item)
+                                                self.check_balance(monto)
                                     break
                                 else:
                                     if intentado:
@@ -963,16 +1095,32 @@ class CobrarTicketWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         uic.loadUi("UI/cobrarticket.ui", self)
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.check_connection)
+        self.timer.start(55)
         self.verificar_id.clicked.connect(self.verificar_ticket)
         self.id_ticket.returnPressed.connect(self.verificar_ticket)
         self.setWindowFlags(self.windowFlags() | QtCore.Qt.FramelessWindowHint)
+
+
+    def check_connection(self):
+        connection_prueba = connection_intent()
+        if connection_prueba:
+            self.conexion, self.conexion2 = connection_intent()
+            
+        else:
+            title = "Conexión rechazada"
+            icon = QMessageBox.Information
+            text = "Conexión rechazada intentando reconectar."
+            ventanta_emergente_def(title, icon, text)
+
     def keyPressEvent(self, event):
             if event.key() == Qt.Key_Escape:
                 self.close()
                 primer.clear()
 
 
-
+                
     def verificar_ticket(self):
         if self.id_ticket.text() == '':
                 title = "Error"
@@ -992,7 +1140,7 @@ class CobrarTicketWindow(QMainWindow):
             id_sucursal = sesion_usuario['id_sucursal']
             id_ticket = self.id_ticket.text()
             self.id_ticket.setText("")
-            cursor2 = conexion.cursor()
+            cursor2 = self.conexion.cursor()
             cursor2.execute("SELECT * FROM jugadas WHERE id_ticket = %s and id_banca = %s and id_sucursal = %s", (id_ticket, id_banca, id_sucursal))
             ticket = cursor2.fetchall()
             cursor2.close()
@@ -1012,7 +1160,7 @@ class CobrarTicketWindow(QMainWindow):
                     key_loteria = ticket[i][8].lower()
                     fecha_for_verifying = fecha[:10]
             
-                    cursor2 = conexion2.cursor()
+                    cursor2 = self.conexion2.cursor()
                     if cobrado == "SI":
                         title = "Error"
                         icon = QMessageBox.Critical
@@ -1022,7 +1170,7 @@ class CobrarTicketWindow(QMainWindow):
                         ventanta_emergente_def(title, icon, text)
                         break
                     else:
-                                        # Generamos un patrón para la expresión regular que represente todas las posibles permutaciones del número
+                        # Generamos un patrón para la expresión regular que represente todas las posibles permutaciones del número
                         patron = ''.join(f"(?=.*{digito})" for digito in numero)
                         query = f"SELECT * FROM {key_loteria} WHERE resultados REGEXP %s AND fecha = %s"
                         cursor2.execute(query, (patron, fecha_for_verifying))
@@ -1067,7 +1215,7 @@ class CobrarTicketWindow(QMainWindow):
                                 pass             
                         else:
                             pass
-                monto_pagar(primer, id_ticket)
+                self.monto_pagar(primer, id_ticket)
             elif ticket == "":
                 title = "Error"
                 icon = QMessageBox.Critical
@@ -1076,9 +1224,23 @@ class CobrarTicketWindow(QMainWindow):
 
 
 
-def monto_pagar(primer, id_ticket):
+
+
+
+
+def monto_pagar(primer, id_ticket, self):
     id_sucursal = sesion_usuario.get('id_sucursal')
     id_banca = sesion_usuario.get('id_banca')
+    connection_prueba = connection_intent()
+    if connection_prueba:
+        self.conexion, self.conexion2 = connection_intent()
+        
+    else:
+        title = "Conexión rechazada"
+        icon = QMessageBox.Information
+        text = "Conexión rechazada intentando reconectar."
+        ventanta_emergente_def(title, icon, text)
+
     if primer:
         suma = sum(primer)  # Sumar los montos en la lista
         title = "Felicidades"
@@ -1103,7 +1265,7 @@ def monto_pagar(primer, id_ticket):
         # Comprobar si el botón "Pagar" fue presionado
         if ventana_emergente.clickedButton() == boton_pagar:
             try:
-                cursor = conexion.cursor()
+                cursor = self.conexion.cursor()
 
                 # Utilizamos la sentencia DELETE para eliminar las jugadas con el ID de ticket y números en 'ganadores'
                 for numero in ganadores:
@@ -1114,7 +1276,7 @@ def monto_pagar(primer, id_ticket):
                     cursor.execute(sentencia_sql, valores)
 
                 # Confirmar los cambios en la base de datos
-                conexion.commit()
+                self.conexion.commit()
 
                 # Cerrar el cursor y la conexión con la base de datos
                 cursor.close()
@@ -1122,9 +1284,9 @@ def monto_pagar(primer, id_ticket):
                     ganador = ganadores[i]
                     monto_jugado = montos[i]
                     monto_ganado = primer[i]
-                    cursor2 = conexion.cursor()
+                    cursor2 = self.conexion.cursor()
                     cursor2.execute("INSERT INTO tickets_ganadores VALUES (%s, %s, %s, %s, %s, %s)", ((id_banca, id_sucursal, id_ticket, ganador, monto_ganado, monto_jugado)))
-                    conexion.commit()
+                    self.conexion.commit()
                     cursor2.close()
 
                 # Mostrar una ventana emergente de éxito
@@ -1140,9 +1302,6 @@ def monto_pagar(primer, id_ticket):
         text = "Ticket no ganador."
         ventanta_emergente_def(title, icon, text)
         primer.clear()
-
-
-
 
 checkbox_names = {
     "AnguiladiezAM": "Anguila Mañana 10:00 AM",
@@ -1167,6 +1326,7 @@ checkbox_names = {
     "RealunaPM": "Quiniela Real 1:00 PM",
     "SuertedocePM": "La suerte 12:30 PM"
 }
+
 checkbox_times = {
     "Anguila Mañana 10:00 AM": "10:00 AM",
     "Anguila Medio Día 1:00 PM": "1:00 PM",
@@ -1191,14 +1351,11 @@ checkbox_times = {
     "La suerte 12:30 PM": "12:30 PM"
 }
 
-
-
 def obtener_clave_por_valor(diccionario, valor_buscado):
     for clave, valor in diccionario.items():
         if valor_buscado in valor:
             return clave
     return None
-
 
 def ventanta_emergente_def(title, icon, text):
     ventana_emergente = QMessageBox()
@@ -1207,25 +1364,96 @@ def ventanta_emergente_def(title, icon, text):
     ventana_emergente.setIcon(icon)
     ventana_emergente.exec_()
 
-
 def adjustWindowToScreen(window):
     desktop = QDesktopWidget().availableGeometry()
     window.setGeometry(desktop)
-
 
 class Adminwindow(QMainWindow):
     def __init__(self):
         super().__init__()
         uic.loadUi("UI/admin.ui", self)
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.check_connection)
+        self.timer.start(55)
         self.registrarwindow = None
         self.registrar.clicked.connect(self.registrarpage)
         self.add_number.clicked.connect(self.add_numbers)
         self.eliminar_banca.clicked.connect(self.desactivar_banca)
         self.registrar_sucursal.clicked.connect(self.registrar_sucursal_banca)
         self.mantenimiento_button.clicked.connect(self.mantenimiento)
+        self.eliminar_base_datos_button.clicked.connect(self.eliminar_base_datos)
         self.add_numbers_window = None
         self.desactivar_window = None
         self.mantain_window = None
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.actualizar)
+        self.timer.start(1000)  # 1000 ms = 1 segundo
+        self.id_banca = sesion_usuario.get("id_banca")
+        self.id_sucursal = sesion_usuario.get("id_sucursal")
+        self.correos_adeudos = []
+        self.nombres_to_send = []
+
+    def check_connection(self):
+        connection_prueba = connection_intent()
+        if connection_prueba:
+            self.conexion, self.conexion2 = connection_intent()
+            
+        else:
+            title = "Conexión rechazada"
+            icon = QMessageBox.Information
+            text = "Conexión rechazada intentando reconectar."
+            ventanta_emergente_def(title, icon, text)
+
+    def recordatorio_pagos(self):
+        cursor = self.conexion.cursor()
+
+        cursor.execute("SELECT * FROM informacion_banca")
+
+        bancas = cursor.fetchall()
+
+        hoy = today.day
+
+        for i in range(len(bancas)):
+
+            dia_pago = bancas[i][6]
+
+            if int(hoy) == int(dia_pago):
+
+                correo = bancas[i][4]
+                nombre = bancas[i][2]
+
+                self.correos_adeudos.append(correo)
+                self.nombres_to_send.append(nombre)
+
+                
+        self.send_mail_adeudo()
+
+    def send_mail_adeudo(self):
+        for i, correo in enumerate(self.correos_adeudos):
+            nombre = self.nombres_to_send[i]
+            enviar_correo_adeudo(correo, nombre)
+
+
+
+    def eliminar_base_datos(self):
+        self.eliminar_base_datos_window = None
+        if self.eliminar_base_datos_window is None:
+            self.eliminar_base_datos_window = Eliminar_base()
+        self.eliminar_base_datos_window.show()
+    
+    def actualizar(self):
+        try:
+            hora_actual = QDateTime.currentDateTime().toString('HH:mm:ss')
+            hoy = today.day
+            if hora_actual == "00:00:00" and hoy == 1:
+                self.mantenimiento_mensual()
+            if hora_actual == "12:17:00":
+                #self.mantain()
+                #self.un_dia_func()
+                self.recordatorio_pagos()
+        except Exception as e:
+            print(e)
+
     def keyPressEvent(self, event):
             if event.key() == Qt.Key_Escape:
                 self.close()
@@ -1240,6 +1468,144 @@ class Adminwindow(QMainWindow):
             self.mantain_window = Mantain()
         self.mantain_window.show()
 
+
+    def mantain(self):
+            try:
+                cursor = self.conexion.cursor()
+
+                cursor.execute("SELECT * FROM jugadas")
+
+                plays = cursor.fetchall()
+
+                current_datetime = datetime.now()
+
+                for play in plays:
+
+                    fecha_hora_jugada = play[6]
+
+                    # Ajusta el formato para el nuevo estilo de fecha y hora
+
+                    fecha_hora_jugada = datetime.strptime(fecha_hora_jugada, '%d/%m/%Y - %I:%M:%S %p')
+
+                    dias_pasados = (current_datetime - fecha_hora_jugada).days
+
+                    if dias_pasados >= 1:
+                        id_banca = play[0]
+                        id_sucursal = play[1]
+                        id_ticket = play[2]
+                        cursor = self.conexion.cursor()
+
+                        cursor.execute("delete from jugadas where id_banca = %s and id_sucursal = %s and id_ticket = %s", (id_banca, id_sucursal, id_ticket))
+
+                self.conexion.commit()
+
+                cursor.close()
+
+            except Exception as e:
+
+                enviar_correo_error(e)
+
+                title = "Error"
+
+                icon = QMessageBox.Critical
+
+                text = f"Ha ocurrido un error inesperado y se le ha notificado a soporte. Se volverá a intentar de nuevo en segundos."
+
+                ventanta_emergente_def(title, icon, text)
+
+    def un_dia_func(self):
+        try:
+
+            cursor = self.conexion.cursor()
+
+            tables = ["bloqueado", "restringido"]
+
+            for i in range(len(tables)):
+
+                tables_to_delete = tables[i]
+
+                consulta = f"TRUNCATE TABLE {tables_to_delete}"
+
+                cursor.execute(consulta)
+
+                self.conexion.commit()
+                
+            cursor2 = self.conexion.cursor()
+
+            cursor2.execute("SELECT * FROM ganancias")
+
+            venta_hoy = cursor2.fetchall()
+
+            for i in range(len(venta_hoy)):
+
+                id_banca = venta_hoy[i][1]
+
+                id_sucursal = venta_hoy[i][2]
+
+                cursor3 = self.conexion.cursor()
+
+                cursor3.execute("UPDATE ganancias SET venta_mensual = venta_mensual + venta_diaria, venta_diaria = '0' WHERE id_banca = %s AND id_sucursal = %s", (id_banca, id_sucursal))
+
+                self.conexion.commit()
+
+                cursor3.close()
+
+            title = "Hecho"
+
+            icon = QMessageBox.Information
+
+            text = "La base de datos ha sido actualizada con exito, gracias por usar Genuine."
+            
+            ventanta_emergente_def(title, icon, text)
+
+        except Exception as e:
+
+            enviar_correo_error(e)
+
+            title = "Error"
+
+            icon = QMessageBox.Critical
+
+            text = f"Ha ocurrido un error inesperado y se le ha notificado a soporte. Se volverá a intentar de nuevo en segundos."
+
+            ventanta_emergente_def(title, icon, text)
+
+
+    def mantenimiento_mensual(self):
+        try:
+            cursor2 = self.conexion.cursor()
+
+            cursor2.execute("SELECT * FROM ganancias")
+
+            venta_hoy = cursor2.fetchall()
+
+            for i in range(len(venta_hoy)):
+
+                id_banca = venta_hoy[i][1]
+
+                id_sucursal = venta_hoy[i][2]
+
+                cursor3 = self.conexion.cursor()
+
+                cursor3.execute("UPDATE ganancias SET venta_anual = venta_mensual + venta_anual, venta_mensual = '0' WHERE id_banca = %s AND id_sucursal = %s", (id_banca, id_sucursal))
+
+                self.conexion.commit()
+
+                cursor3.close()
+
+            title = "Hecho"
+
+            icon = QMessageBox.Information
+
+            text = "La base de datos ha sido actualizada con exito, gracias por usar Genuine."
+
+            ventanta_emergente_def(title, icon, text)
+
+        except mysql.connector.Error as err:
+
+            print("Error:", err)
+
+
     def registrar_sucursal_banca(self):
             intentado = True
             while True:
@@ -1247,7 +1613,7 @@ class Adminwindow(QMainWindow):
                         "REGISTRO SUCURSAL", "dialog-question", "Por favor ingresa el ID de la banca."
                     )
                 if resultado_dialogo == QDialog.Accepted:
-                        cursor = conexion.cursor()
+                        cursor = self.conexion.cursor()
                         cursor.execute("SELECT * FROM informacion_banca WHERE id_banca = %s", (respuesta_usuario, ))
                         banca = cursor.fetchone()
                         if banca is not None:
@@ -1255,12 +1621,17 @@ class Adminwindow(QMainWindow):
                             id_banca = banca[0]
                             nombre_banca = banca[1]
                             nombre_dueno = banca[2]
-                            telefono_principal = banca[3]
-                            email_principal = banca[4]
-                            cantidad_sucursales = banca[5]
+                            prefijo = banca[3]
+                            nombre = prefijo + " " + nombre_dueno
+                            nombre_propietario = nombre.title()
+                            telefono_principal = banca[4]
+                            email_principal = banca[5]
+                            cantidad_sucursales = banca[6]
+                            numero_sucursal = int(cantidad_sucursales) + 1
+                            nombre_sucursal = f"{nombre_banca} #{numero_sucursal}"
                             self.close()
                             if self.registro_sucursal is None:
-                                self.registro_sucursal = SucursalWindow(id_banca, nombre_banca, nombre_dueno, telefono_principal, email_principal, cantidad_sucursales)
+                                self.registro_sucursal = SucursalWindow(id_banca, nombre_banca, nombre_propietario, telefono_principal, email_principal, cantidad_sucursales, nombre_sucursal)
                             self.registro_sucursal.show()
                             break
                         else:
@@ -1269,12 +1640,9 @@ class Adminwindow(QMainWindow):
                                     icon = QMessageBox.Critical
                                     text= f"El ID de banca: {respuesta_usuario} es invalido".upper()
                                     ventanta_emergente_def(title, icon, text)
-
                 else:
                     break
 
-
-    
     def registrarpage(self):
         self.close()
         if self.registrarwindow == None:
@@ -1285,7 +1653,6 @@ class Adminwindow(QMainWindow):
         if self.desactivar_window is None:
             self.desactivar_window = Desactivar()
         self.desactivar_window.show()
-
 
 def registrar_sucursal(title, icon, text):
         # Creamos una ventana emergente personalizada (QDialog)
@@ -1331,6 +1698,27 @@ def hash_password(password, salt):
     hashed_password = hashlib.sha256(password.encode() + salt.encode()).hexdigest()
     return hashed_password
 
+class Eliminar_base(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        uic.loadUi("UI/eliminar_base_datos.ui", self)
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.check_connection)
+        self.timer.start(55)
+
+    def check_connection(self):
+        connection_prueba = connection_intent()
+        if connection_prueba:
+            self.conexion, self.conexion2 = connection_intent()
+            
+        else:
+            title = "Conexión rechazada"
+            icon = QMessageBox.Information
+            text = "Conexión rechazada intentando reconectar."
+            ventanta_emergente_def(title, icon, text)
+
+
+
 class Mantain(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -1338,6 +1726,12 @@ class Mantain(QMainWindow):
         self.uno.clicked.connect(self.un_dia_func)
         self.quince.clicked.connect(self.quince_dias)
         self.treinta.clicked.connect(self.treinta_dias)
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.check_connection)
+        self.timer.start(55)
+        self.id_banca = sesion_usuario.get("id_banca")
+        self.id_sucursal = sesion_usuario.get("id_sucursal")
+
         # Obtener la fecha actual
         fecha_actual = datetime.now()
 
@@ -1348,29 +1742,44 @@ class Mantain(QMainWindow):
         fecha_actual_formateada = fecha_actual.strftime('%d/%m/%Y')
         self.treinta_dias_antes_formateada = treinta_dias_antes.strftime('%d/%m/%Y - %I:%M:%S %p')
 
+    def check_connection(self):
+        connection_prueba = connection_intent()
+        if connection_prueba:
+            self.conexion, self.conexion2 = connection_intent()
+            
+        else:
+            title = "Conexión rechazada"
+            icon = QMessageBox.Information
+            text = "Conexión rechazada intentando reconectar."
+            ventanta_emergente_def(title, icon, text)
+
+
     def un_dia_func(self):
         try:
-            cursor = conexion.cursor()
+            cursor = self.conexion.cursor()
             tables = ["bloqueado", "restringido"]
             for i in range(len(tables)):
                 tables_to_delete = tables[i]
                 consulta = f"TRUNCATE TABLE {tables_to_delete}"
                 cursor.execute(consulta)
-                conexion.commit()
+                self.conexion.commit()
             title = "Hecho"
             icon = QMessageBox.Information
             text = "La base de datos ha sido actualizada con exito, gracias por usar Genuine."
             ventanta_emergente_def(title, icon, text)
+            cursor2 = self.conexion.cursor()
+            cursor2.execute("SELECT venta_diaria FROM ganancias WHERE id_banca = %s AND id_sucursal = %s", (self.id_banca, self.id_sucursal))
+            venta_hoy = cursor2.fetchone()
         except mysql.connector.Error as err:
             print("Error:", err)
 
     def quince_dias(self):
-        print("Quince")
+        pass
 
     def treinta_dias(self):
         try:
             # Crear un objeto cursor
-            cursor = conexion.cursor()
+            cursor = self.conexion.cursor()
 
             # Ejecutar la consulta para obtener los registros de hace 30 días o más
             tables = ["jugadas", "restringido"]
@@ -1380,7 +1789,7 @@ class Mantain(QMainWindow):
                     tables_to_delete = tables[i]
                     consulta = f"TRUNCATE TABLE {tables_to_delete}"
                     cursor.execute(consulta)
-                    conexion.commit()
+                    self.conexion.commit()
                 title = "Hecho"
                 icon = QMessageBox.Information
                 text = "La base de datos ha sido actualizada con exito, gracias por usar Genuine."
@@ -1402,9 +1811,26 @@ class RegistrarBanca(QMainWindow):
         super().__init__()
         uic.loadUi("UI/registrobanca.ui", self)
         self.registrar_button.clicked.connect(self.register)
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.check_connection)
+        self.timer.start(55)
+
+
     def keyPressEvent(self, event):
             if event.key() == Qt.Key_Escape:
                 self.close()
+
+
+    def check_connection(self):
+        connection_prueba = connection_intent()
+        if connection_prueba:
+            self.conexion, self.conexion2 = connection_intent()
+            
+        else:
+            title = "Conexión rechazada"
+            icon = QMessageBox.Information
+            text = "Conexión rechazada intentando reconectar."
+            ventanta_emergente_def(title, icon, text)
 
     def register(self):
         try:
@@ -1413,9 +1839,10 @@ class RegistrarBanca(QMainWindow):
             numero_contacto = self.numerocontacto.text()
             numero_secundario = self.numerosecundario.text()
             email_contacto = self.emailcontacto.text()
+            prefijo = self.prefijo.currentText()
             dia_pago = self.diapago.text()
-            monto_pago = self.montopago.text()
-            tipo_software = self.tiposoftware.text()
+            monto_pago = self.montopago.currentText()
+            tipo_software = self.tiposoftware.currentText()
             pago_pale = self.pagopale.text()
             pago_tripleta = self.pagotripleta.text()
             puntos_primera = self.puntos_primera.text()
@@ -1432,7 +1859,7 @@ class RegistrarBanca(QMainWindow):
             id_sucursal_to_convert = uuid.uuid4()
             id_sucursal = str(id_sucursal_to_convert)
 
-            cursor1 = conexion.cursor()
+            cursor1 = self.conexion.cursor()
             cursor1.execute("SELECT user FROM auth WHERE user = %s", (usuario, ))
             usuario_log = cursor1.fetchone()
             Lineedit_check = self.findChildren(QLineEdit)
@@ -1452,44 +1879,44 @@ class RegistrarBanca(QMainWindow):
                 salt = generate_salt()
                 hashed_password = hash_password(password, salt)
 
-                cursor = conexion.cursor()
+                cursor = self.conexion.cursor()
                 cursor.execute("INSERT INTO banca (id, idbanca, id_sucursal, nombre_sucursal, persona_encargada, numerocontacto, contacto_secundario, email_contacto, dia_pago, monto_pago, software_comprado, pago_pale, pago_tripleta, punto_primera, punto_segunda, punto_tercera, activa) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
                    (0, id_banca, id_sucursal, nombre_sucursal, persona_a_cargo, numero_contacto, numero_secundario, email_contacto, dia_pago, monto_pago, tipo_software, pago_pale, pago_tripleta, puntos_primera, puntos_segunda, puntos_tercera, "SI"))
-                cursor2 = conexion.cursor()
+                cursor2 = self.conexion.cursor()
                 cursor2.execute("INSERT INTO auth (idauth, id_banca, id_sucursal, user, password) VALUES (%s, %s, %s, %s, %s)", 
                                 (0, id_banca, id_sucursal, usuario, hashed_password))
-                cursor3 = conexion.cursor()
+                cursor3 = self.conexion.cursor()
                 cursor3.execute("INSERT INTO ganancias VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", 
                                 (0, id_banca, id_sucursal, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0))
-                cursor4 = conexion.cursor()
-                cursor4.execute("INSERT INTO informacion_banca VALUES (%s, %s, %s, %s, %s, %s)", (id_banca, nombre_banca, nombre_dueno, telefono_principal, email_principal, 1))
-                conexion.commit()
-                conexion.close()
+                cursor4 = self.conexion.cursor()
+                cursor4.execute("INSERT INTO informacion_banca VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", (id_banca, nombre_banca, nombre_dueno, prefijo, telefono_principal, email_principal, 1, dia_pago, email_principal, "A1B2C3"))
+                self.conexion.commit()
+                self.conexion.close()
+
 
                 title = "Realizado"
                 icon = QMessageBox.Information
-                text = f"""La banca ha sido registrada con éxito. El nombre de usuario es {usuario}. 
-                           Las credenciales y el contrato del comprador serán enviados por correo.
-                           Gracias por usar GENUINE.
-                """
+                text = f"La banca ha sido registrada con éxito. El nombre de usuario es {usuario}. Las credenciales y el contrato del comprador serán enviados por correo. Gracias por usar GENUINE."
                 Lineedit = self.findChildren(QLineEdit)
                 for i in Lineedit:
                     i.setText("")
                 ventanta_emergente_def(title, icon, text)
                 destinatario = email_principal
-                enviar_correo(destinatario, usuario, password)
+                enviar_correo(destinatario, usuario, password, email_principal)
                 # Limpiar los campos de texto
         except Exception as e:
             # Mostrar una ventana emergente de error en caso de excepción
             QMessageBox.critical(None, "Error", f"Error: {str(e)}")
             
-
 class Addnumbers(QMainWindow):
     def __init__(self):
         super().__init__()
         self.update_numbers = None
         uic.loadUi("UI/add_numbers.ui", self)
         self.setWindowFlags(self.windowFlags() | QtCore.Qt.FramelessWindowHint)
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.check_connection)
+        self.timer.start(55)
         
         self.AnguiladiezAM.clicked.connect(lambda: self.button_clicked("anguiladiezam"))
         self.CuartetadiezAM.clicked.connect(lambda: self.button_clicked("cuartetadiezam"))
@@ -1512,6 +1939,18 @@ class Addnumbers(QMainWindow):
         self.FloridanuevePM.clicked.connect(lambda: self.button_clicked("floridanuevepm"))
         self.floridadospm.clicked.connect(lambda: self.button_clicked("floridadospm"))
         self.NewdiezPM.clicked.connect(lambda: self.button_clicked("newdiezpm"))
+
+    def check_connection(self):
+        connection_prueba = connection_intent()
+        if connection_prueba:
+            self.conexion, self.conexion2 = connection_intent()
+            
+        else:
+            title = "Conexión rechazada"
+            icon = QMessageBox.Information
+            text = "Conexión rechazada intentando reconectar."
+            ventanta_emergente_def(title, icon, text)
+
     def keyPressEvent(self, event):
             if event.key() == Qt.Key_Escape:
                 self.close()
@@ -1531,10 +1970,25 @@ class DevolucionWindow(QMainWindow):
         self.boton_devolucion.clicked.connect(self.on_devolution)
         self.id_banca = sesion_usuario.get('id_banca')
         self.id_sucursal = sesion_usuario.get('id_sucursal')
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.check_connection)
+        self.timer.start(55)
+
+    def check_connection(self):
+        connection_prueba = connection_intent()
+        if connection_prueba:
+            self.conexion, self.conexion2 = connection_intent()
+            
+        else:
+            title = "Conexión rechazada"
+            icon = QMessageBox.Information
+            text = "Conexión rechazada intentando reconectar."
+            ventanta_emergente_def(title, icon, text)
+
 
     def on_devolution(self):
         id_ticket = self.idticket.text()
-        cursor = conexion.cursor()
+        cursor = self.conexion.cursor()
         cursor.execute("SELECT * FROM jugadas WHERE id_banca = %s and id_sucursal = %s and id_ticket = %s", (self.id_banca, self.id_sucursal, id_ticket))
         ticket = cursor.fetchall()
         cursor.close()
@@ -1590,13 +2044,11 @@ class DevolucionWindow(QMainWindow):
                     for i in range(len(tickets)):
                         numero_for_database = numeros_jugados[i]
                         monto_for_database = montos_jugados[i]
-                        print(numero_for_database)
-                        print(monto_for_database)
-                        cursor = conexion.cursor()
+                        cursor = self.conexion.cursor()
                         cursor.execute("DELETE FROM jugadas WHERE id_banca = %s AND id_sucursal = %s AND id_ticket = %s", (self.id_banca, self.id_sucursal, id_ticket))
-                        cursor2 = conexion.cursor()
+                        cursor2 = self.conexion.cursor()
                         cursor2.execute("INSERT INTO anulados VALUES (%s, %s, %s, %s, %s, %s)", (self.id_banca, self.id_sucursal, id_ticket, monto_for_database, numero_for_database, today.day))
-                        conexion.commit()
+                        self.conexion.commit()
                         cursor.close()
                     title = "Hecho"
                     icon = QMessageBox.Critical
@@ -1615,6 +2067,9 @@ class UpdateNumber(QMainWindow):
     def __init__(self, lottery):
         super().__init__()
         uic.loadUi("UI/UPDATE_NUMBER.ui", self)
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.check_connection)
+        self.timer.start(55)
         self.setWindowFlags(self.windowFlags() | QtCore.Qt.FramelessWindowHint)
         self.push_lotterie.clicked.connect(lambda: self.push_number(lottery))
         self.first.setFocus()
@@ -1625,7 +2080,19 @@ class UpdateNumber(QMainWindow):
         self.first.returnPressed.connect(self.firstfocus)
         self.second.returnPressed.connect(self.secondfocus)
         self.third.returnPressed.connect(lambda: self.push_number(lottery))
-        self.loteria.setText(f"Loteria seleccionada: {lottery}")
+        self.loteria.setText(f"Loteria seleccionada: {lottery}") 
+
+    def check_connection(self):
+        connection_prueba = connection_intent()
+        if connection_prueba:
+            self.conexion, self.conexion2 = connection_intent()
+            
+        else:
+            title = "Conexión rechazada"
+            icon = QMessageBox.Information
+            text = "Conexión rechazada intentando reconectar."
+            ventanta_emergente_def(title, icon, text)
+
     
     def keyPressEvent(self, event):
             if event.key() == Qt.Key_Escape:
@@ -1701,9 +2168,9 @@ class UpdateNumber(QMainWindow):
                     # Formamos la consulta SQL con el nombre de la tabla
                     consulta_sql = f"INSERT INTO {lottery} VALUES (%s, %s)"
                                 # Ejecutamos la consulta SQL con los valores
-                    cursor = conexion2.cursor()
+                    cursor = self.conexion2.cursor()
                     cursor.execute(consulta_sql, (dia_mes_ano, final))
-                    conexion2.commit()
+                    self.conexion2.commit()
                     cursor.close()
                     self.add_numbers()
 
@@ -1711,15 +2178,31 @@ class Desactivar(QMainWindow):
     def __init__(self):
         super().__init__()
         uic.loadUi("UI/desactivar.ui", self)
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.check_connection)
+        self.timer.start(55)
         self.setWindowFlags(self.windowFlags() | QtCore.Qt.FramelessWindowHint)
         self.eliminar_boton.clicked.connect(self.desactivar)
+
+
+    def check_connection(self):
+        connection_prueba = connection_intent()
+        if connection_prueba:
+            self.conexion, self.conexion2 = connection_intent()
+            
+        else:
+            title = "Conexión rechazada"
+            icon = QMessageBox.Information
+            text = "Conexión rechazada intentando reconectar."
+            ventanta_emergente_def(title, icon, text)
+
     def keyPressEvent(self, event):
             if event.key() == Qt.Key_Escape:
                 self.close()
 
     def desactivar(self):
         id_banca = self.id_banca.text()
-        cursor = conexion.cursor()
+        cursor = self.conexion.cursor()
         cursor.execute("SELECT activa FROM banca WHERE idbanca = %s", (id_banca, ))
         deativated = cursor.fetchall()
         if deativated is not None:
@@ -1745,7 +2228,7 @@ class Desactivar(QMainWindow):
             # Comprobar si el botón "Pagar" fue presionado
             if ventana_emergente.clickedButton() == boton_pagar:
                 cursor.execute("UPDATE banca SET activa = %s WHERE idbanca = %s",("NO", id_banca))
-                conexion.commit()
+                self.conexion.commit()
                 cursor.close()
                 title = "Hecho"
                 icon = QMessageBox.Information
@@ -1761,22 +2244,54 @@ class desactivada(QMainWindow):
     def __init__(self):
         super().__init__()
         uic.loadUi("UI/banca_desactivada.ui", self)
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.check_connection)
+        self.timer.start(55)
+
+
+    def check_connection(self):
+        connection_prueba = connection_intent()
+        if connection_prueba:
+            self.conexion, self.conexion2 = connection_intent()
+            
+        else:
+            title = "Conexión rechazada"
+            icon = QMessageBox.Information
+            text = "Conexión rechazada intentando reconectar."
+            ventanta_emergente_def(title, icon, text)
+
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Escape:
             self.close()
 
 class SucursalWindow(QMainWindow):
-    def __init__(self, id_banca, nombre_banca, nombre_dueno, telefono_principal, email_principal, cantidad_sucursales):
+    def __init__(self, id_banca, nombre_banca, nombre_dueno, telefono_principal, email_principal, cantidad_sucursales, nombre_sucursal_text):
         super().__init__()
         uic.loadUi("UI/banca_sucursal.ui", self)
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.check_connection)
+        self.timer.start(55)
         self.nombre_banca.setText(nombre_banca)
         self.button_for_register.clicked.connect(self.sucursal)
         self.nombre_dueno.setText(nombre_dueno)
         self.telefono_principal.setText(telefono_principal)
         self.cantidad.setText(cantidad_sucursales)
         self.email_principal.setText(email_principal)
+        self.nombre_sucursal.setText(nombre_sucursal_text)
         self.id_banca = id_banca
         self.email_principal = email_principal
+
+    def check_connection(self):
+        connection_prueba = connection_intent()
+        if connection_prueba:
+            self.conexion, self.conexion2 = connection_intent()
+            
+        else:
+            title = "Conexión rechazada"
+            icon = QMessageBox.Information
+            text = "Conexión rechazada intentando reconectar."
+            ventanta_emergente_def(title, icon, text)
+
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Escape:
             self.close()
@@ -1810,16 +2325,16 @@ class SucursalWindow(QMainWindow):
             text = "Para continuar debes rellenar todos los campos"
             ventanta_emergente_def(title, icon, text)
         else:
-            cursor = conexion.cursor()
+            cursor = self.conexion.cursor()
             cursor.execute("UPDATE informacion_banca SET cantidad_sucursales = cantidad_sucursales + 1 WHERE id_banca = %s", (id_banca, ))
             cursor.close()
-            cursor2 = conexion.cursor()
+            cursor2 = self.conexion.cursor()
             cursor2.execute("INSERT INTO banca (id, idbanca, id_sucursal, nombre_sucursal, persona_encargada, numerocontacto, contacto_secundario, email_contacto, dia_pago, monto_pago, software_comprado, pago_pale, pago_tripleta, punto_primera, punto_segunda, punto_tercera, activa) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
                    (0, id_banca, id_sucursal, nombre_sucursal, persona_a_cargo, numero_contacto, numero_secundario, email_contacto, dia_pago, monto_pago, tipo_software, pago_pale, pago_tripleta, puntos_primera, puntos_segunda, puntos_tercera, "SI"))
-            cursor3 = conexion.cursor()
+            cursor3 = self.conexion.cursor()
             cursor3.execute("INSERT INTO auth (idauth, id_banca, id_sucursal, user, password) VALUES (%s, %s, %s, %s, %s)", 
                                 (0, id_banca, id_sucursal, usuario, password))
-            cursor4 = conexion.cursor()
+            cursor4 = self.conexion.cursor()
             cursor4.execute("INSERT INTO ganancias VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", 
                                 (0, id_banca, id_sucursal, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0))
             title = "Realizado"
@@ -1828,7 +2343,7 @@ class SucursalWindow(QMainWindow):
                         Las credenciales y el contrato del comprador serán enviados por correo.
                         Gracias por usar GENUINE.
                     """
-            conexion.commit()
+            self.conexion.commit()
             Lineedit = self.findChildren(QLineEdit)
             for i in Lineedit:
                 i.setText("")
@@ -1840,9 +2355,12 @@ class BlockNumbers(QMainWindow):
     def __init__(self):
         super().__init__()
         uic.loadUi("UI/numeros_bloqueados.ui", self)
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.check_connection)
+        self.timer.start(55)
         id_banca = sesion_usuario.get('id_banca')
         id_sucursal = sesion_usuario.get('id_sucursal')
-        cursor = conexion.cursor()
+        cursor = self.conexion.cursor()
         cursor.execute("SELECT * FROM bloqueado WHERE id_banca = %s AND id_sucursal = %s", (id_banca, id_sucursal))
         numeros = cursor.fetchall()
         if numeros != []:
@@ -1851,7 +2369,20 @@ class BlockNumbers(QMainWindow):
                 self.block_numbers.addItem(item1)
 
 
-today = datetime.now()     
+    def check_connection(self):
+        connection_prueba = connection_intent()
+        if connection_prueba:
+            self.conexion, self.conexion2 = connection_intent()
+            
+        else:
+            title = "Conexión rechazada"
+            icon = QMessageBox.Information
+            text = "Conexión rechazada intentando reconectar."
+            ventanta_emergente_def(title, icon, text)
+
+
+
+today = datetime.now()
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

@@ -95,7 +95,7 @@
      </font>
     </property>
     <property name="text">
-     <string>Bajo pocas circunstancias deberían usarse los botones (7 días) y (15 días).</string>
+     <string>Bajo pocas circunstancias deberían usarse los botones (1 días) y (15 días).</string>
     </property>
    </widget>
   </widget>

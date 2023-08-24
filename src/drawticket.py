@@ -4,6 +4,9 @@ from reportlab.pdfgen import canvas
 from datetime import datetime
 import pytz
 import webbrowser
+import barcode
+from barcode import EAN13
+from barcode.writer import ImageWriter
 
 
 
@@ -13,14 +16,14 @@ timezone_RD = pytz.timezone('America/Santo_Domingo')
 # Obtener la hora actual en la zona horaria de la República Dominicana
 now_RD = datetime.now(timezone_RD)
 
-def generar_recibo(nombre_banca ,added_elements, chosen_numbers, amount, total_precio, archivo_pdf_azar, idticket, loterias):
+def generar_recibo(nombre_banca ,added_elements, chosen_numbers, amount, total_precio, archivo_pdf_azar, idticket, loterias, random):
     # Cantidad de elementos a agregar
     elementos_agregados = added_elements
 
     # Tamaño de página personalizado
     altura_elemento = 8  # Altura de cada elemento
     margen_superior = 28  # Margen superior para el contenido del recibo
-    margen_inferior = 35  # Margen inferior para el contenido del recibo
+    margen_inferior = 46  # Margen inferior para el contenido del recibo
 
     # Calcular la altura total de la página en función del número de loterías y elementos agregados
     altura_loterias = len(loterias) * altura_elemento
@@ -94,17 +97,33 @@ def generar_recibo(nombre_banca ,added_elements, chosen_numbers, amount, total_p
     c.drawString(0 * mm, (altura_total - (35 + altura_loterias + (elementos_agregados * altura_elemento))) * mm,
                  f"- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ")
     
-    c.drawString(10 * mm, (altura_total - (40 + altura_loterias + (elementos_agregados * altura_elemento))) * mm,
+    c.drawString(10 * mm, (altura_total - (60 + altura_loterias + (elementos_agregados * altura_elemento))) * mm,
                  f"REVISE SU TICKET")
     
-    c.drawString(10 * mm, (altura_total - (43 + altura_loterias + (elementos_agregados * altura_elemento))) * mm,
+    c.drawString(10 * mm, (altura_total - (63 + altura_loterias + (elementos_agregados * altura_elemento))) * mm,
                  f"PASADO 15 MINUTOS NO SE ADMITEN DEVOLUCIONES")
     
-    c.drawString(10 * mm, (altura_total - (46 + altura_loterias + (elementos_agregados * altura_elemento))) * mm,
+    c.drawString(10 * mm, (altura_total - (66 + altura_loterias + (elementos_agregados * altura_elemento))) * mm,
                  f"ESTE TICKET ES VALIDO POR 30 DIAS")
     
-    c.drawString(10 * mm, (altura_total - (49 + altura_loterias + (elementos_agregados * altura_elemento))) * mm,
+    c.drawString(10 * mm, (altura_total - (69 + altura_loterias + (elementos_agregados * altura_elemento))) * mm,
                  f"GRACIAS POR PREFERIRNOS - SUERTE -")
+    
+    # Establecemos el numero del código de barras
+    # Importante: el modelo EAN debe tener 12 digitos
+    numero = random
+
+    #Generamos el código con un formato EAN13
+    mi_codigo = EAN13(numero, writer=ImageWriter())
+
+    # Coordenadas y tamaño para el código de barras
+    x_position = 63  # Coordenada x
+    y_position = (altura_total - (55 + altura_loterias + (elementos_agregados * altura_elemento))) * mm
+    image_width = 72
+    image_height = 40
+
+    # Agregar el código de barras al PDF utilizando c.drawInlineImage()
+    c.drawInlineImage(mi_codigo.render(), x_position, y_position, width=image_width, height=image_height)
 
     # Guardar el recibo y finalizar el lienzo del PDF
     c.showPage()
