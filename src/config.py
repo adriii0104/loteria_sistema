@@ -5,25 +5,22 @@ import mysql.connector
 def connection_intent():
     try:
         conexion = mysql.connector.connect(
-            host='localhost',
+            host='190.166.27.19',
             user='root',
-            password='',
+            password='ACD20803@',
             db='lotteria_genuine'
         )
-        conexion = conexion
         conexion2 = mysql.connector.connect(
-            host='localhost',
+            host='190.166.27.19',
             user='root',
-            password='',
+            password='ACD20803@',
             db='resultados'
         )
-        conexion2 = conexion2
     
         if conexion.is_connected() and conexion2.is_connected():
             conection = True
 
             return conexion, conexion2
-            return conection
         else:
             conection = None
             return conection

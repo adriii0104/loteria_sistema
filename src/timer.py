@@ -1,19 +1,27 @@
-from datetime import datetime, timedelta
+import requests
+from bs4 import BeautifulSoup
+import time
 
-# Obtener la hora actual
-hora_actual = datetime.now().time()
+def hour_rd():
+        url = "https://www.worldtimeserver.com/hora-exacta-DO.aspx"
+        
+        response = requests.get(url)
+        
+        if response.status_code == 200:
+            html_content = response.text
+        
+            soup = BeautifulSoup(html_content, 'html.parser')
+        
+            params_for_hour = 'fontTS'
+        
+            h2_element = soup.find('span', class_=params_for_hour)
+        
+            if h2_element is not None and h2_element.text:
+                hora_rd = h2_element.text.split()[0]  # Get the first element from the list
+                return hora_rd
+            else:
+                return("Time element not found on the webpage.")
+        else:
+            return("Failed to retrieve the webpage. Status code:", response.status_code)
+        
 
-# Hora dada (puedes cambiar esta hora según tus necesidades)
-hora_dada = datetime.strptime("10:04:00", "%H:%M:%S").time()
-
-# Calcular la diferencia entre la hora actual y la hora dada
-diferencia = datetime.combine(datetime.today(), hora_actual) - datetime.combine(datetime.today(), hora_dada)
-
-# Obtener el tiempo transcurrido en minutos
-minutos_transcurridos = diferencia.total_seconds() / 60
-
-# Comparar si han pasado 15 minutos
-if minutos_transcurridos >= 15:
-    print("Han pasado 15 minutos desde la hora dada.")
-else:
-    print("No han pasado 15 minutos desde la hora dada.")

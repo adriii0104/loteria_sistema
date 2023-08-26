@@ -14,6 +14,7 @@ import random
 import time
 from config import connection_intent
 from dict import sesion_usuario
+from timer import hour_rd
 
 
 
@@ -27,6 +28,7 @@ class LoginWindow(QMainWindow):
         self.timer.timeout.connect(self.check_connection)
         self.timer.start(55)
         self.msj = False  # Inicializar la variable como atributo de la instancia
+        self.msj_exito = False  # Inicializar la variable como atributo de la instancia
         self.Botonlogin.clicked.connect(self.login)
         self.user.returnPressed.connect(self.focus)
         self.password.returnPressed.connect(self.login)
@@ -44,21 +46,37 @@ class LoginWindow(QMainWindow):
 
     def check_connection(self):
         connection_prueba = connection_intent()
+        hora = hour_rd()
+        print(hora)
+        hora_local = datetime.now()
+        hora_local_hour = (hora_local.hour)
+        hora_local_minute = (hora_local.minute)
 
-        if connection_prueba:
-            if not self.msj:
-                self.msj = True
-                title = "Conexión exitosa"
+        total_hour = f"{hora_local_hour}:{hora_local_minute}"
+        
+        if hora != total_hour:
+                title = "Error"
                 icon = QMessageBox.Information
-                text = "Conexión exitosa!"
+                text = "Por favor antes de continuar debe actualizar la hora en su dispositivo."
                 ventanta_emergente_def(title, icon, text)
-                self.conexion, self.conexion2 = connection_intent()
+                self.msj = True
+
+        if connection_prueba and hora == total_hour:
+            if self.msj:
+                if self.msj_exito:
+                    title = "Conexión exitosa"
+                    icon = QMessageBox.Information
+                    text = "Conexión exitosa!"
+                    ventanta_emergente_def(title, icon, text)
+                    self.conexion, self.conexion2 = connection_intent()
+                    self.msj_exito = True
                 
         else:
             title = "Conexión rechazada"
             icon = QMessageBox.Information
             text = "Conexión rechazada intentando reconectar."
             ventanta_emergente_def(title, icon, text)
+            self.msj = True
 
 
 
@@ -67,6 +85,7 @@ class LoginWindow(QMainWindow):
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Escape:
+            self.timer.stop()
             self.close()
         if event.key() == Qt.Key_F5:
             self.close()
