@@ -1,32 +1,31 @@
-import mysql.connector
+import requests
+
+url = 'http://127.0.0.1:5000/CS8QHsIdoOXUGTAHtZTZeg+YteqGd5qStna8r/UgWxQ'
+
+
+email = input("Inserte su email ")
+
+print("\n")
+
+password = input("Password ")
+
+
+data = {'email': email, 'password': password}
 
 
 
-def connection_intent():
-    try:
-        conexion = mysql.connector.connect(
-            host='190.166.27.19',
-            user='root',
-            password='ACD20803@',
-            db='lotteria_genuine'
-        )
-        conexion2 = mysql.connector.connect(
-            host='190.166.27.19',
-            user='root',
-            password='ACD20803@',
-            db='resultados'
-        )
+response = requests.post(url, json=data, verify=False)
+
+if response.status_code == 200:
+    respuesta = response.json()
+    valido = respuesta['valid']
+    if valido == True:
+        print(respuesta['message'])
+    elif valido == False:
+        print(respuesta['message'])
+    else:
+        print(respuesta['message'])
     
-        if conexion.is_connected() and conexion2.is_connected():
-            conection = True
 
-            return conexion, conexion2
-        else:
-            conection = None
-            return conection
-    
-    except mysql.connector.Error as e:
-        #print("Error al conectarse con la base de datos:", e)
-        conection = None
-        return conection
+
     
