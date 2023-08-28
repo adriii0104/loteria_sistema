@@ -12,7 +12,7 @@ import hashlib
 from send_mail import enviar_correo, enviar_correo2, enviar_correo_error, enviar_correo_adeudo
 import random
 import time
-from config import connection_intent
+from config import login
 from dict import sesion_usuario
 from timer import hour_rd
 
@@ -45,7 +45,6 @@ class LoginWindow(QMainWindow):
         self.setWindowIcon(icon)
 
     def check_connection(self):
-        connection_prueba = connection_intent()
         hora = hour_rd()
         print(hora)
         hora_local = datetime.now()
@@ -61,16 +60,14 @@ class LoginWindow(QMainWindow):
                 ventanta_emergente_def(title, icon, text)
                 self.msj = True
 
-        if connection_prueba and hora == total_hour:
+        if  hora == total_hour:
             if self.msj:
                 if self.msj_exito:
                     title = "Conexión exitosa"
                     icon = QMessageBox.Information
                     text = "Conexión exitosa!"
                     ventanta_emergente_def(title, icon, text)
-                    self.conexion, self.conexion2 = connection_intent()
                     self.msj_exito = True
-                
         else:
             title = "Conexión rechazada"
             icon = QMessageBox.Information
@@ -94,73 +91,19 @@ class LoginWindow(QMainWindow):
             self.login_window.show()
 
     def login(self):
-        try:
             usuario = self.user.text()
             usuario.lower()
             password = self.password.text()
-            cursor = self.conexion.cursor()
-            cursor.execute("SELECT * FROM auth WHERE user = %s", (usuario, ))
-            usuario_log = cursor.fetchone()
     
             if usuario == '' or password == '':
                     title = "Error"
                     icon = QMessageBox.Critical
                     text = "Por favor ingrese el usuario o la contraseña"
                     ventanta_emergente_def(title, icon, text)
-            elif usuario_log is not None:
-                password_data = usuario_log[4]
-                if password == password_data:
-                    self.close()
-                    if usuario_log[3] == "admin":
-                        self.close()
-                        if self.admin_window is None:
-                            self.admin_window = Adminwindow()
-                        self.admin_window.show()
-                    elif usuario_log[3] == "subir_numeros":
-                        self.close()
-                        if self.add_numbers_window is None:
-                            self.add_numbers_window = Addnumbers()
-                        self.add_numbers_window.show()
-                    else:
-                        cursor2 = self.conexion.cursor()
-                        cursor3 = self.conexion.cursor()
-                        cursor2.execute("SELECT * FROM banca WHERE idbanca = %s and id_sucursal = %s", (usuario_log[1], usuario_log[2]))
-                        datos = cursor2.fetchone()
-                        sesion_usuario['id_banca'] = datos[1]
-                        sesion_usuario['id_sucursal'] = datos[2]
-                        sesion_usuario['nombre_banca'] = datos[3]
-                        sesion_usuario['pago_pale'] = datos[11]
-                        sesion_usuario['pago_tripleta'] = datos[12]
-                        sesion_usuario['puntos_primera'] = datos[13]
-                        sesion_usuario['puntos_segunda'] = datos[14]
-                        sesion_usuario['puntos_tercera'] = datos[15]
-                        sesion_usuario['activa'] = datos[16]
-                        activa = sesion_usuario.get('activa')
-                        cursor3.execute("SELECT * FROM informacion_banca WHERE id_banca = %s", (usuario_log[1], ))
-                        informacion = cursor3.fetchone()
-                        sesion_usuario['numero_principal'] = informacion[3]
-                        cursor3.close()
-                        self.desactivada = None
-                        if activa == "NO":
-                            if self.desactivada is None:
-                                self.desactivada = desactivada()
-                            self.desactivada.show()
-                        elif self.bodywindow is None:
-                                self.bodywindow = Bodywindow()
-                                adjustWindowToScreen(self.bodywindow)
-                                self.bodywindow.show()
-                else:
-                    title = "Error"
-                    icon = QMessageBox.Critical
-                    text = "Nombre de usuario o contraseña incorrectos"
-                    ventanta_emergente_def(title, icon, text)
             else:
-                title = "Error"
-                icon = QMessageBox.Critical
-                text = "Nombre de usuario o contraseña incorrectos"
-                ventanta_emergente_def(title, icon, text)
-        except mysql.connector.Error as e:
-            print("Error al conectarse con la base de datos")
+                login(usuario, password)
+            
+                
     
 
 class Bodywindow(QMainWindow):
