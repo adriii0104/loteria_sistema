@@ -11,7 +11,7 @@ from datetime import datetime, timedelta
 import hashlib
 import random
 import time
-from config import login, connection, register
+from config import login, connection, register, registrar_sucursal_data
 from dict import sesion_usuario
 from timer import hour_rd
 
@@ -1416,7 +1416,6 @@ class Adminwindow(QMainWindow):
 
     def recordatorio_pagos(self):
 
-        #Rancel lo va hacer 
         #cursor = self.conexion.cursor()
 #
         #cursor.execute("SELECT * FROM informacion_banca")
@@ -1625,36 +1624,21 @@ class Adminwindow(QMainWindow):
                 "REGISTRO SUCURSAL", "dialog-question", "Por favor ingresa el ID de la banca."
             )
             if resultado_dialogo == QDialog.Accepted:
-                cursor = self.conexion.cursor()
-                cursor.execute(
-                    "SELECT * FROM informacion_banca WHERE id_banca = %s", (respuesta_usuario, ))
-                banca = cursor.fetchone()
-                if banca is not None:
-                    self.registro_sucursal = None
-                    id_banca = banca[0]
-                    nombre_banca = banca[1]
-                    nombre_dueno = banca[2]
-                    prefijo = banca[3]
-                    nombre = prefijo + " " + nombre_dueno
-                    nombre_propietario = nombre.title()
-                    telefono_principal = banca[4]
-                    email_principal = banca[5]
-                    cantidad_sucursales = banca[6]
-                    numero_sucursal = int(cantidad_sucursales) + 1
-                    nombre_sucursal = f"{nombre_banca} #{numero_sucursal}"
-                    self.close()
-                    if self.registro_sucursal is None:
-                        self.registro_sucursal = SucursalWindow(
-                            id_banca, nombre_banca, nombre_propietario, telefono_principal, email_principal, cantidad_sucursales, nombre_sucursal)
-                    self.registro_sucursal.show()
-                    break
-                else:
-                    if intentado:
-                        title = "ERROR"
-                        icon = QMessageBox.Critical
-                        text = f"El ID de banca: {respuesta_usuario} es invalido".upper(
-                        )
-                        ventanta_emergente_def(title, icon, text)
+                registrar_sucursal_data(respuesta_usuario)
+
+                    # para abrir la otra ventana.
+                    #if self.registro_sucursal is None:
+                    #    self.registro_sucursal = SucursalWindow(
+                    #        id_banca, nombre_banca, nombre_propietario, telefono_principal, email_principal, cantidad_sucursales, nombre_sucursal)
+                    #self.registro_sucursal.show()
+                    #break
+                #else:
+                #    if intentado:
+                #        title = "ERROR"
+                #        icon = QMessageBox.Critical
+                #        text = f"El ID de banca: {respuesta_usuario} es invalido".upper(
+                #        )
+                #        ventanta_emergente_def(title, icon, text)
             else:
                 break
 
