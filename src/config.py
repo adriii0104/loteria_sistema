@@ -14,8 +14,6 @@ def connection():
         return False
 
 
-
-
 def login(email_data, password_data):
     url = 'http://127.0.0.1:5000/CS8QHsIdoOXUGTAHtZTZeg+YteqGd5qStna8r/UgWxQ'
 
@@ -28,10 +26,15 @@ def login(email_data, password_data):
     response = requests.post(url, json=data, verify=False)
 
     if response.status_code == 200:
+
         respuesta = response.json()
+
         valido = respuesta['valid']
+
         if valido == "admin":
+
             log = "admin"
+            
             return log
         elif valido == True:
             # Actualiza la sesión del usuario con información de la respuesta
@@ -50,13 +53,13 @@ def login(email_data, password_data):
             return False
         else:
             # Mensaje de error si la respuesta no es válida
-            return False
+            return None
     else:
-        log = "error"
         return "error"
 
 
-def register(nombre_banca_data, prefijo_data, dia_pago_data, monto_pago_data, tipo_software_data,
+def register(
+             nombre_banca_data, prefijo_data, dia_pago_data, monto_pago_data, tipo_software_data,
              pago_pale_data, pago_tripleta_data, puntos_primera_data, puntos_segunda_data, puntos_tercera_data,
              nombre_dueno_data, nombre_sucursal_data, telefono_principal_data, email_principal_data, usuario_data,
              password_data, id_banca_data, id_sucursal_data
@@ -84,24 +87,27 @@ def register(nombre_banca_data, prefijo_data, dia_pago_data, monto_pago_data, ti
         'id_banca': id_banca_data,
         'id_sucursal': id_sucursal_data
     }
+
     response = requests.post(url, json=dataregister, verify=False)
 
     if response.status_code == 200:
         respuesta = response.json()
-        if respuesta['data']:
+        if respuesta['data'] == "Exist":
+            return "Existent"
+
+        elif respuesta['data']:
             return True
+
         else:
             return False
     else:
         return False
 
 
-#benjon
+# benjon
 def registrar_sucursal_data(id_banca):
 
-
     url = 'http://127.0.0.1:5000/registersucursal/post'
-
 
     data = {
         'id_banca': id_banca
@@ -112,3 +118,22 @@ def registrar_sucursal_data(id_banca):
     if response.status_code == 200:
         respuesta = response.json()
         print(respuesta)
+
+
+def count_numbers(id_banca, id_sucursal):
+
+    url = 'http://127.0.0.1:5000/Hycbkxuhd/sykksxnns/ywfkxshkm/mbw'
+
+    data = {
+        'id_banca': id_banca, 'id_sucursal': id_sucursal
+    }
+
+    response = requests.post(url, json=data, verify=False)
+
+    if response.status_code == 200:
+        respuesta = response.json()
+
+        if respuesta['response']:
+            return respuesta['response'], respuesta['numero_mas_jugado'], respuesta['cantidad_mas_jugado']
+        else:
+            return False

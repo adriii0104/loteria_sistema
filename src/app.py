@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox, QCheckBox, QDesktopWidget, QListView, QListWidgetItem, QPushButton, QApplication, QDialog, QLabel, QLineEdit, QVBoxLayout, QPushButton, QWidget, QFormLayout
-from PyQt5.QtGui import QIcon, QPainter, QFont
+from PyQt5.QtGui import QIcon, QPainter, QFont, QMovie
 from PyQt5 import uic, QtCore, QtGui
 from PyQt5.QtCore import Qt, QTimer, QDateTime
 import sys
@@ -11,9 +11,12 @@ from datetime import datetime, timedelta
 import hashlib
 import random
 import time
-from config import login, connection, register, registrar_sucursal_data
+from config import login, connection, register, registrar_sucursal_data, count_numbers
 from dict import sesion_usuario
 from timer import hour_rd
+import hashlib
+import os
+
 
 
 class LoginWindow(QMainWindow):
@@ -62,7 +65,7 @@ class LoginWindow(QMainWindow):
             self.icon = QMessageBox.Information
             self.text = "No se pudo establecer una conexión, por favor revise su conexión a internet"
             self.ventanta_emergente_def(self.title, self.icon, self.text)
-            QTimer.singleShot(999, self.close)
+            QTimer.singleShot(1, self.close)
 
     def focus(self):
         self.password.setFocus()
@@ -104,7 +107,7 @@ class LoginWindow(QMainWindow):
                 icon = QMessageBox.Critical
                 text = "Usuario o contraseña incorrectos."
                 ventanta_emergente_def(title, icon, text)
-            elif response_server == None:
+            elif response_server is None:
                 title = "Error"
                 icon = QMessageBox.Critical
                 text = "La información no existe."
@@ -169,7 +172,6 @@ class Bodywindow(QMainWindow):
             if checkbox:
                 checkbox.stateChanged.connect(self.checkbox_state_changed)
 
-
     def check_connection(self):
         conexion = connection()
         if conexion == True:
@@ -181,9 +183,6 @@ class Bodywindow(QMainWindow):
             self.text = "No se pudo establecer una conexión, por favor revise su conexión a internet"
             self.ventanta_emergente_def(self.title, self.icon, self.text)
             QTimer.singleShot(333, self.close)
-
-
-                
 
     def emergency(self):
         title = "INFORMACION"
@@ -774,46 +773,26 @@ class Bodywindow(QMainWindow):
         if event.key() == Qt.Key_F10:
             self.imprimir_ticket()
         if event.key() == Qt.Key_F12:
-
-            #Adriel lo va hacer.
-            cursor = self.conexion.cursor()
-            cursor.execute("SELECT numeros FROM jugadas WHERE id_banca = %s AND id_sucursal = %s",
-                           (self.id_banca, self.id_sucursal))
-            jugadas = cursor.fetchall()
-
-            numbers_count = {}  # Diccionario para contar las ocurrencias de cada número
-            print(jugadas)
-            if jugadas != []:
-                for i in range(len(jugadas)):
-                    for_work = jugadas[i][0]
-                    for_work1 = for_work.replace('-', '')
-                    if for_work1 in numbers_count:
-                        numbers_count[for_work1] += 1
-                    else:
-                        numbers_count[for_work1] = 1
-                most_common_number = max(numbers_count, key=numbers_count.get)
-                most_common_count = numbers_count[most_common_number]
-                if most_common_count > 75:
-                    title = "Informacion"
-                    icon = QMessageBox.Information
-                    text = f"El número peligrando del día es: {most_common_number}: con {most_common_count} jugadas"
-                    ventanta_emergente_def(title, icon, text)
-                else:
-                    title = "Informacion"
-                    icon = QMessageBox.Information
-                    text = "Por el momento no hay jugadas peligrosas."
-                    ventanta_emergente_def(title, icon, text)
+            response, most_play, most_count = count_numbers(self.id_banca, self.id_sucursal)
+            if response:
+                title = "Informacion"
+                icon = QMessageBox.Information
+                text = f"El número peligrando del día es: {most_play}: con {most_count} jugadas"
+                ventanta_emergente_def(title, icon, text)
             else:
                 title = "Informacion"
                 icon = QMessageBox.Information
-                text = "Por el momento no hay jugadas peligrosas."
+                text = f"Por el momento no jugadas con peligro."
                 ventanta_emergente_def(title, icon, text)
+
+
+
 
     # falta todvia agregarle lo de los numeros, falta todavia integrarle el conteo, todavia hay que pasarlo a imprimir. (pendiente)
 
     def imprimir_ticket(self):
 
-        #Adriel lo va hacer
+        # Adriel lo va hacer
         nombre_banca = sesion_usuario.get('nombre_banca')
         id_banca = sesion_usuario.get('id_banca')
         id_sucursal = sesion_usuario.get('id_sucursal')
@@ -1416,23 +1395,23 @@ class Adminwindow(QMainWindow):
 
     def recordatorio_pagos(self):
 
-        #cursor = self.conexion.cursor()
-#
-        #cursor.execute("SELECT * FROM informacion_banca")
-#
-        #bancas = cursor.fetchall()
+        # cursor = self.conexion.cursor()
+        #
+        # cursor.execute("SELECT * FROM informacion_banca")
+        #
+        # bancas = cursor.fetchall()
 
-        #hoy = today.day
-#
-        #for i in range(len(bancas)):
-#
+        # hoy = today.day
+        #
+        # for i in range(len(bancas)):
+        #
         #    dia_pago = bancas[i][6]
-#
+        #
         #    if int(hoy) == int(dia_pago):
-#
+        #
         #        correo = bancas[i][4]
         #        nombre = bancas[i][2]
-#
+        #
         #        self.correos_adeudos.append(correo)
         #        self.nombres_to_send.append(nombre)
 
@@ -1626,13 +1605,13 @@ class Adminwindow(QMainWindow):
             if resultado_dialogo == QDialog.Accepted:
                 registrar_sucursal_data(respuesta_usuario)
 
-                    # para abrir la otra ventana.
-                    #if self.registro_sucursal is None:
-                    #    self.registro_sucursal = SucursalWindow(
-                    #        id_banca, nombre_banca, nombre_propietario, telefono_principal, email_principal, cantidad_sucursales, nombre_sucursal)
-                    #self.registro_sucursal.show()
-                    #break
-                #else:
+                # para abrir la otra ventana.
+                # if self.registro_sucursal is None:
+                #    self.registro_sucursal = SucursalWindow(
+                #        id_banca, nombre_banca, nombre_propietario, telefono_principal, email_principal, cantidad_sucursales, nombre_sucursal)
+                # self.registro_sucursal.show()
+                # break
+                # else:
                 #    if intentado:
                 #        title = "ERROR"
                 #        icon = QMessageBox.Critical
@@ -1815,12 +1794,17 @@ class RegistrarBanca(QMainWindow):
         super().__init__()
         uic.loadUi("UI/registrobanca.ui", self)
         self.msj = False
+
         self.registrar_button.clicked.connect(self.register)
         self.check_connection()
 
     def keyPressEvent(self, event):
+        self.adminwindow = None
         if event.key() == Qt.Key_Escape:
             self.close()
+            if self.adminwindow is None:
+                self.adminwindow = Adminwindow()
+            self.adminwindow.show()
 
     def check_connection(self):
         conexion = connection()
@@ -1835,56 +1819,67 @@ class RegistrarBanca(QMainWindow):
             QTimer.singleShot(333, self.close)
 
     def register(self):
-        # try:
-        nombre_banca = self.nombre_banca.text()
-        prefijo = self.prefijo.currentText()
-        dia_pago = self.diapago.text()
-        monto_pago = self.montopago.currentText()
-        tipo_software = self.tiposoftware.currentText()
-        pago_pale = self.pagopale.text()
-        pago_tripleta = self.pagotripleta.text()
-        puntos_primera = self.puntos_primera.text()
-        puntos_segunda = self.puntos_segunda.text()
-        puntos_tercera = self.puntos_tercera.text()
-        nombre_dueno = self.nombre_dueno.text()
-        nombre_sucursal = self.nombre_sucursal.text()
-        telefono_principal = self.telefono_principal.text()
-        email_principal = self.email_principal.text()
-        usuario = self.user.text()
-        password = self.password.text()
-        nm = nombre_banca[:1]
-        id_banca = str(uuid.uuid4()) + nm
-        id_sucursal_to_convert = uuid.uuid4()
-        id_sucursal = str(id_sucursal_to_convert)
+        try:
+            nombre_banca = self.nombre_banca.text()
+            prefijo = self.prefijo.currentText()
+            dia_pago = self.diapago.text()
+            monto_pago = self.montopago.currentText()
+            tipo_software = self.tiposoftware.currentText()
+            pago_pale = self.pagopale.text()
+            pago_tripleta = self.pagotripleta.text()
+            puntos_primera = self.puntos_primera.text()
+            puntos_segunda = self.puntos_segunda.text()
+            puntos_tercera = self.puntos_tercera.text()
+            nombre_dueno = self.nombre_dueno.text()
+            nombre_sucursal = self.nombre_sucursal.text()
+            telefono_principal = self.telefono_principal.text()
+            email_principal = self.email_principal.text()
+            usuario = self.user.text()
+            password = self.password.text()
+            nm = nombre_banca[:1]
+            id_banca = str(uuid.uuid4()) + nm
+            id_sucursal_to_convert = uuid.uuid4()
+            id_sucursal = str(id_sucursal_to_convert)
 
-        Lineedit_check = self.findChildren(QLineEdit)
-        for i in Lineedit_check:
-            input = i.text()
-
-        if input == "":
-            title = "Error"
-            icon = QMessageBox.Critical
-            text = "Uno o mas campos estan vacíos."
-            ventanta_emergente_def(title, icon, text)
-        else:
-            data = register(nombre_banca, prefijo, dia_pago, monto_pago, tipo_software, pago_pale, pago_tripleta, puntos_primera, puntos_segunda,
-                            puntos_tercera, nombre_dueno, nombre_sucursal, telefono_principal, email_principal, usuario, password, id_banca, id_sucursal
-                            )
-            if data == True:
-                title = "Realizado"
-                icon = QMessageBox.Information
-                text = f"La banca ha sido registrada con éxito. El nombre de usuario es {usuario}. Las credenciales y el contrato del comprador serán enviados por correo. Gracias por usar GENUINE."
-                ventanta_emergente_def(title, icon, text)
-                Lineedit = self.findChildren(QLineEdit)
-                for i in Lineedit:
-                    i.setText("")
-            else:
+    
+            Lineedit_check = self.findChildren(QLineEdit)
+            for i in Lineedit_check:
+                input = i.text()
+    
+            if input == "":
                 title = "Error"
                 icon = QMessageBox.Critical
-                text = "Ha ocurrido un error al intentar registrar la banca."
-   # except Exception as e:
-        # Mostrar una ventana emergente de error en caso de excepción
-        # QMessageBox.critical(None, "Error", f"Error: {str(e)}")
+                text = "Uno o mas campos estan vacíos."
+                ventanta_emergente_def(title, icon, text)
+            else:
+    
+                data = register(nombre_banca, prefijo, dia_pago, monto_pago, tipo_software, pago_pale, pago_tripleta, puntos_primera, puntos_segunda,
+                                puntos_tercera, nombre_dueno, nombre_sucursal, telefono_principal, email_principal, usuario, password, id_banca, id_sucursal
+                                )
+    
+                if data == "Exist":
+                    title = "Error"
+                    icon = QMessageBox.Critical
+                    text = f"El usuario suministrado ya existe."
+                    ventanta_emergente_def(title, icon, text)
+                    self.user.setText('')
+    
+                if data == True:
+                    title = "Realizado"
+                    icon = QMessageBox.Information
+                    text = f"La banca ha sido registrada con éxito. El nombre de usuario es {usuario}. Las credenciales y el contrato del comprador serán enviados por correo. Gracias por usar GENUINE."
+                    ventanta_emergente_def(title, icon, text)
+                    Lineedit = self.findChildren(QLineEdit)
+                    for i in Lineedit:
+                        i.setText("")
+    
+                else:
+                    title = "Error"
+                    icon = QMessageBox.Critical
+                    text = "Ha ocurrido un error al intentar registrar la banca."
+        except Exception as e:
+            # Mostrar una ventana emergente de error en caso de excepción
+             QMessageBox.critical(None, "Error", f"Error: {str(e)}")
 
 
 class Addnumbers(QMainWindow):
@@ -1950,8 +1945,12 @@ class Addnumbers(QMainWindow):
             QTimer.singleShot(333, self.close)
 
     def keyPressEvent(self, event):
+        self.adminwindow = None
         if event.key() == Qt.Key_Escape:
             self.close()
+            if self.adminwindow is None:
+                self.adminwindow = Adminwindow()
+            self.adminwindow.show()
 
     def button_clicked(self, button_name):
         self.add_numbers(button_name)
@@ -2064,8 +2063,12 @@ class DevolucionWindow(QMainWindow):
             ventanta_emergente_def(title, icon, text)
 
     def keyPressEvent(self, event):
+        self.adminwindow = None
         if event.key() == Qt.Key_Escape:
             self.close()
+            if self.adminwindow is None:
+                self.adminwindow = Adminwindow()
+            self.adminwindow.show()
 
 
 class UpdateNumber(QMainWindow):
@@ -2195,8 +2198,12 @@ class Desactivar(QMainWindow):
             QTimer.singleShot(333, self.close)
 
     def keyPressEvent(self, event):
+        self.adminwindow = None
         if event.key() == Qt.Key_Escape:
             self.close()
+            if self.adminwindow is None:
+                self.adminwindow = Adminwindow()
+            self.adminwindow.show()
 
     def desactivar(self):
         id_banca = self.id_banca.text()
@@ -2261,8 +2268,12 @@ class desactivada(QMainWindow):
             QTimer.singleShot(333, self.close)
 
     def keyPressEvent(self, event):
+        self.adminwindow = None
         if event.key() == Qt.Key_Escape:
             self.close()
+            if self.adminwindow is None:
+                self.adminwindow = Adminwindow()
+            self.adminwindow.show()
 
 
 class SucursalWindow(QMainWindow):
@@ -2293,8 +2304,12 @@ class SucursalWindow(QMainWindow):
             QTimer.singleShot(333, self.close)
 
     def keyPressEvent(self, event):
+        self.adminwindow = None
         if event.key() == Qt.Key_Escape:
             self.close()
+            if self.adminwindow is None:
+                self.adminwindow = Adminwindow()
+            self.adminwindow.show()
 
     def sucursal(self):
         id_banca = self.id_banca
@@ -2380,6 +2395,20 @@ class BlockNumbers(QMainWindow):
             self.text = "No se pudo establecer una conexión, por favor revise su conexión a internet"
             self.ventanta_emergente_def(self.title, self.icon, self.text)
             QTimer.singleShot(333, self.close)
+
+
+def generate_salt():
+    return os.urandom(16)  # Genera una sal aleatoria de 16 bytes
+
+
+def hash_password(password, salt):
+    method_to_encript = hashlib.sha3_256()  # Crea un objeto de hash SHA-3-256
+
+    # Combina la sal y la contraseña antes de hashear
+    password_with_salt = salt + password.encode('utf-8')
+    method_to_encript.update(password_with_salt)
+
+    return method_to_encript.hexdigest()
 
 
 today = datetime.now()
