@@ -120,6 +120,11 @@ def registrar_sucursal_data(id_banca):
         print(respuesta)
 
 
+
+
+
+
+
 def count_numbers(id_banca, id_sucursal):
 
     url = 'http://127.0.0.1:5000/Hycbkxuhd/sykksxnns/ywfkxshkm/mbw'
@@ -133,7 +138,43 @@ def count_numbers(id_banca, id_sucursal):
     if response.status_code == 200:
         respuesta = response.json()
 
-        if respuesta['response']:
-            return respuesta['response'], respuesta['numero_mas_jugado'], respuesta['cantidad_mas_jugado']
+        if respuesta['response'] == True:
+            response=respuesta['response']
+            mas_jugado=respuesta['numero_mas_jugado']
+            cantidad=respuesta['cantidad_mas_jugado']
+            return response, mas_jugado, cantidad
         else:
             return False
+        
+
+def procesar_numeros(len_monto, selected_lotteries, total_jugado, amounts, chosen_numbers, selected, checkbox_selected):
+    data = {
+        'nombre_banca': sesion_usuario['nombre_banca'],
+        'id_banca': sesion_usuario['id_banca'],
+        'id_sucursal': sesion_usuario['id_sucursal'],
+        'len_montos': len_monto,
+        'selected_lotteries': selected_lotteries,
+        'total_jugado': total_jugado,
+        'amount': amounts,
+        'chosen_numbers': chosen_numbers,
+        'checkbox_selected_names': selected,
+        'checkbox_selected_lotteries': checkbox_selected 
+
+    }
+    url = 'http://127.0.0.1:5000/data/numbers'
+
+    response = requests.post(url, json=data, verify=False)
+
+    if response.status_code == 200:
+        respuesta = response.json()
+        print(respuesta['error'])
+
+        if respuesta['response'] == True and respuesta['error'] == False:
+            return True
+        elif respuesta['error'] == True:
+            return respuesta['response']
+        else:
+            return False
+        
+
+

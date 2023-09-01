@@ -11,12 +11,11 @@ from datetime import datetime, timedelta
 import hashlib
 import random
 import time
-from config import login, connection, register, registrar_sucursal_data, count_numbers
+from config import login, connection, register, registrar_sucursal_data, count_numbers, procesar_numeros
 from dict import sesion_usuario
 from timer import hour_rd
 import hashlib
 import os
-
 
 
 class LoginWindow(QMainWindow):
@@ -773,172 +772,96 @@ class Bodywindow(QMainWindow):
         if event.key() == Qt.Key_F10:
             self.imprimir_ticket()
         if event.key() == Qt.Key_F12:
-            response, most_play, most_count = count_numbers(self.id_banca, self.id_sucursal)
+            response = count_numbers(
+                self.id_banca, self.id_sucursal)
             if response:
-                title = "Informacion"
-                icon = QMessageBox.Information
-                text = f"El número peligrando del día es: {most_play}: con {most_count} jugadas"
-                ventanta_emergente_def(title, icon, text)
+                response = count_numbers(
+                    self.id_banca, self.id_sucursal)
+                pass
+                # title = "Informacion"
+                # icon = QMessageBox.Information
+                # text = f"El número peligrando del día es: {most_play}: con {most_count} jugadas"
+                # ventanta_emergente_def(title, icon, text)
             else:
                 title = "Informacion"
                 icon = QMessageBox.Information
                 text = f"Por el momento no jugadas con peligro."
                 ventanta_emergente_def(title, icon, text)
 
-
-
-
     # falta todvia agregarle lo de los numeros, falta todavia integrarle el conteo, todavia hay que pasarlo a imprimir. (pendiente)
 
     def imprimir_ticket(self):
+        amounts = []
 
-        # Adriel lo va hacer
-        nombre_banca = sesion_usuario.get('nombre_banca')
-        id_banca = sesion_usuario.get('id_banca')
-        id_sucursal = sesion_usuario.get('id_sucursal')
-        cursor = self.conexion.cursor()
-        cursor.execute(
-            "SELECT * FROM bloqueado WHERE id_banca = %s and id_sucursal = %s", (id_banca, id_sucursal))
-        bloqueado = cursor.fetchall()
-        cursor.close()
-        cursor2 = self.conexion.cursor()
-        cursor3 = self.conexion.cursor()
-        list_numbers = []
-        condition = False
-        z = 0
-        cantidad_permitida = 0
-        resultado = 0
+        chosen_numbers = []
+
+        selected = []
+
+        checkbox_selected = []
+
         randomss = str(random.randint(000000000000, 999999999999))
-        # Rellena con ceros a la izquierda hasta completar 12 dígitos
+
         randoms = f"{randomss:012}"
-        # numero_bloqueado_analicts = numero_bloqueado[2]
+
+        nombre_banca = sesion_usuario['nombre_banca']
+
+        total_precio1 = (self.total_jugado.text())
+
+        total_precio_convert = total_precio1.replace(',', '')
+
+        total_precio = float(total_precio_convert)
+
+        id = uuid.uuid4()
+
+        idgen = str(id)
+
+        idgen = idgen[:10]
+
+        nuevo = idgen.replace("-", "")
+
+        ticket = "BFSSP01"
+
+        idticket = nuevo.upper() + ticket
+
+        archivo_pdf_azar = nuevo + ".pdf"
+
         if len(self.lista_montos) > 0:
             for i in range(self.lista_montos.count()):
                 items = self.lista_jugadas.item(i)
                 jugadas_texto = items.text()
                 resultado = re.sub(r'[^\d-]', '', jugadas_texto)
-            cursor2.execute("SELECT * FROM jugadas WHERE id_banca = %s and id_sucursal = %s and numeros = %s",
-                            (id_banca, id_sucursal, resultado))
-            resultado2 = cursor2.fetchall()
-            cursor2.close()
-            cursor3.execute("SELECT * FROM restringido WHERE id_banca = %s and id_sucursal = %s and numero = %s",
-                            (id_banca, id_sucursal, resultado))
-            restringido = cursor3.fetchall()
-            for x in range(len(bloqueado)):
-                list_numbers.append(bloqueado[x][2])
-            if restringido != []:
-                for z in range(len(resultado2)):
-                    hoy = datetime.now()
-                    dia = int(hoy.strftime("%d"))
-                    fecha_database = (resultado2[z][6])
-                    fecha_data = int(fecha_database[:2])
-                z += 1
-                condition = True
-                for n in range(len(restringido)):
-                    cantidad_permitida = int(restringido[n][3])
-                    fecha = int(restringido[n][4])
-        if len(self.lista_montos) == 0:
-            title = "Error"
-            icon = QMessageBox.Critical
-            text = "Antes de imprimir debes escribir las jugadas."
-            ventanta_emergente_def(title, icon, text)
-        elif self.selected_lotteries == 0:
-            title = "Error"
-            icon = QMessageBox.Critical
-            text = "Debe elegir al menos una loteria."
-            ventanta_emergente_def(title, icon, text)
-        elif condition == True and z >= cantidad_permitida:
-            if z >= cantidad_permitida and dia <= fecha:
-                title = "Error"
-                icon = QMessageBox.Critical
-                text = f"Esta jugada no está disponible debido a que se agotó la disponibilidad de los números. error(101)"
-                ventanta_emergente_def(title, icon, text)
-        elif resultado in list_numbers:
-            title = "Error"
-            icon = QMessageBox.Critical
-            text = f"La jugada no pudo ser realizada debido que el numero {resultado} no está disponible para ventas."
-            ventanta_emergente_def(title, icon, text)
-        else:
-            chosen_numbers = []
-            amounts = []
-            id = uuid.uuid4()
-            idgen = str(id)
-            idgen = idgen[:10]
-            nuevo = idgen.replace("-", "")
-            ticket = "BFSSP01"
-            idticket = nuevo.upper() + ticket
-            archivo_pdf_azar = nuevo + ".pdf"
-            total_precio1 = (self.total_jugado.text())
-            total_precio_convert = total_precio1.replace(',', '')
-            total_precio = float(total_precio_convert)
-            day = today.day
 
-            for i in range(self.lista_montos.count()):
-                item = self.lista_montos.item(i)
-                amount = item.text()
-                items = self.lista_jugadas.item(i)
-                chosen_number = items.text()
-                added_elements = i + 1
-                chosen_numbers.append(str(chosen_number))
-                amounts.append(str(amount))
+        for i in range(self.lista_montos.count()):
+            item = self.lista_montos.item(i)
+            amount = item.text()
+            items = self.lista_jugadas.item(i)
+            chosen_number = items.text()
+            added_elements = i + 1
+            chosen_numbers.append(str(chosen_number))
+            amounts.append(str(amount))
 
-            # Obtener la hora actual
-            hora_actual = datetime.now()
 
-            # Iterar por las loterías seleccionadas
-            for checkbox_name in checkbox_selected_names:
-                lotteries_for_database = checkbox_name
-                if lotteries_for_database in checkbox_times:
-                    hora_checkbox_str = checkbox_times[lotteries_for_database]
+        for loterias in checkbox_selected_names:
+            selected.append(loterias)
+        checkbox_selected.append(checkbox_selected_lotteries)
 
-                    # Convertir la hora del diccionario a objeto datetime (con formato de 12 horas)
-                    hora_checkbox = datetime.strptime(
-                        hora_checkbox_str, "%I:%M %p")
+        selected_lotteries = self.selected_lotteries
+        len_monto = len(self.lista_montos)
+        total_jugado = self.total_jugado.text()
 
-                    # Ajustar la fecha del objeto hora_checkbox con la fecha actual para comparar solo las horas
-                    hora_checkbox = hora_checkbox.replace(
-                        year=hora_actual.year, month=hora_actual.month, day=hora_actual.day)
-
-                    # Verificar si ya no hay tiempo suficiente (la diferencia es menor o negativa)
-                    diferencia_tiempo = hora_checkbox - hora_actual
-                    if diferencia_tiempo <= timedelta(minutes=0):
-                        title = "ERROR"
-                        icon = QMessageBox.Critical
-                        text = f"¡Lotería cerrada!: {lotteries_for_database}"
-                        ventanta_emergente_def(title, icon, text)
-                        return
-                    elif diferencia_tiempo <= timedelta(minutes=10):
-                        title = "ERROR"
-                        icon = QMessageBox.Critical
-                        text = f"¡Lotería cerrada!: {lotteries_for_database}"
-                        ventanta_emergente_def(title, icon, text)
-                        return
-                    else:
-                        pass
-
-            for checkbox_name_loterries in checkbox_selected_lotteries:
-
-                for i in range(len(chosen_numbers)):
-                    item_for_database = self.lista_jugadas.item(i)
-                    item_for_database_text = item_for_database.text()
-                    amount_for_database = self.lista_montos.item(i)
-                    amount_for_database_text = amount_for_database.text()
-                    numeros_con_signo = re.sub(
-                        r"[^\d-]", "", item_for_database_text)
-
-                    cursor = self.conexion.cursor()
-                    cursor.execute("INSERT INTO jugadas VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
-                                   (id_banca, id_sucursal, idticket, numeros_con_signo, amount_for_database_text, lotteries_for_database, datetime.now().strftime('%d/%m/%Y - %I:%M:%S %p'), "NO", checkbox_name_loterries, day, randoms))
-                    cursor.close()
-                    cursor2 = self.conexion.cursor()
-                    cursor2.execute("UPDATE ganancias SET numeros_vendidos = numeros_vendidos + 1, venta_diaria = venta_diaria + %s, venta_total = venta_total + %s WHERE id_banca = %s and id_sucursal = %s",
-                                    (amount_for_database_text, amount_for_database_text, id_banca, id_sucursal))
-                    cursor2.close()
-                    self.conexion.commit()
-
+        response = procesar_numeros(len_monto, selected_lotteries, total_jugado,
+                         amounts, chosen_numbers, selected, checkbox_selected)
+        
+        if response == True:
             generar_recibo(nombre_banca, added_elements, chosen_numbers, amounts,
-                           total_precio, archivo_pdf_azar, idticket, checkbox_selected_names, randoms)
-            self.limpiar_ventana()
+                       total_precio, archivo_pdf_azar, idticket, checkbox_selected_names, randoms)
+        else:
+            title = "Error"
+            icon = QMessageBox.Critical
+            text = response
+            ventanta_emergente_def(title, icon, text)
+
+        self.limpiar_ventana()
 
     def limpiar_ventana(self):
         checkboxes = self.findChildren(QCheckBox)
@@ -1841,29 +1764,28 @@ class RegistrarBanca(QMainWindow):
             id_sucursal_to_convert = uuid.uuid4()
             id_sucursal = str(id_sucursal_to_convert)
 
-    
             Lineedit_check = self.findChildren(QLineEdit)
             for i in Lineedit_check:
                 input = i.text()
-    
+
             if input == "":
                 title = "Error"
                 icon = QMessageBox.Critical
                 text = "Uno o mas campos estan vacíos."
                 ventanta_emergente_def(title, icon, text)
             else:
-    
+
                 data = register(nombre_banca, prefijo, dia_pago, monto_pago, tipo_software, pago_pale, pago_tripleta, puntos_primera, puntos_segunda,
                                 puntos_tercera, nombre_dueno, nombre_sucursal, telefono_principal, email_principal, usuario, password, id_banca, id_sucursal
                                 )
-    
+
                 if data == "Exist":
                     title = "Error"
                     icon = QMessageBox.Critical
                     text = f"El usuario suministrado ya existe."
                     ventanta_emergente_def(title, icon, text)
                     self.user.setText('')
-    
+
                 if data == True:
                     title = "Realizado"
                     icon = QMessageBox.Information
@@ -1872,14 +1794,14 @@ class RegistrarBanca(QMainWindow):
                     Lineedit = self.findChildren(QLineEdit)
                     for i in Lineedit:
                         i.setText("")
-    
+
                 else:
                     title = "Error"
                     icon = QMessageBox.Critical
                     text = "Ha ocurrido un error al intentar registrar la banca."
         except Exception as e:
             # Mostrar una ventana emergente de error en caso de excepción
-             QMessageBox.critical(None, "Error", f"Error: {str(e)}")
+            QMessageBox.critical(None, "Error", f"Error: {str(e)}")
 
 
 class Addnumbers(QMainWindow):
