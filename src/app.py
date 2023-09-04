@@ -5,15 +5,15 @@ from PyQt5.QtCore import Qt, QTimer, QDateTime
 import sys
 import re
 import mysql.connector
-from drawticket import generar_recibo
+from modulos.drawticket import generar_recibo
 import uuid
 from datetime import datetime, timedelta
 import hashlib
 import random
 import time
-from config import login, connection, register, registrar_sucursal_data, count_numbers, procesar_numeros
-from dict import sesion_usuario
-from timer import hour_rd
+from modulos.config import login, connection, register, registrar_sucursal_data, count_numbers, procesar_numeros, copy_config
+from modulos.dict import sesion_usuario
+from modulos.timer import hour_rd
 import hashlib
 import os
 
@@ -799,6 +799,8 @@ class Bodywindow(QMainWindow):
 
         checkbox_selected = []
 
+        resultados = []
+
         randomss = str(random.randint(000000000000, 999999999999))
 
         randoms = f"{randomss:012}"
@@ -809,7 +811,9 @@ class Bodywindow(QMainWindow):
 
         total_precio_convert = total_precio1.replace(',', '')
 
-        total_precio = float(total_precio_convert)
+        total_price = "{:,.2f}".format(float(total_precio_convert))
+
+        total_precio = float(total_price)
 
         id = uuid.uuid4()
 
@@ -830,6 +834,7 @@ class Bodywindow(QMainWindow):
                 items = self.lista_jugadas.item(i)
                 jugadas_texto = items.text()
                 resultado = re.sub(r'[^\d-]', '', jugadas_texto)
+                resultados.append(resultado)
 
         for i in range(self.lista_montos.count()):
             item = self.lista_montos.item(i)
@@ -840,7 +845,6 @@ class Bodywindow(QMainWindow):
             chosen_numbers.append(str(chosen_number))
             amounts.append(str(amount))
 
-
         for loterias in checkbox_selected_names:
             selected.append(loterias)
         checkbox_selected.append(checkbox_selected_lotteries)
@@ -849,19 +853,18 @@ class Bodywindow(QMainWindow):
         len_monto = len(self.lista_montos)
         total_jugado = self.total_jugado.text()
 
-        response = procesar_numeros(len_monto, selected_lotteries, total_jugado,
-                         amounts, chosen_numbers, selected, checkbox_selected)
-        
+        response, id_ticket = procesar_numeros(len_monto, selected_lotteries, total_jugado,
+                                    amounts, chosen_numbers, selected, checkbox_selected, resultados)
+
         if response == True:
             generar_recibo(nombre_banca, added_elements, chosen_numbers, amounts,
-                       total_precio, archivo_pdf_azar, idticket, checkbox_selected_names, randoms)
+                           total_precio, archivo_pdf_azar, id_ticket, checkbox_selected_names, randoms)
+            self.limpiar_ventana()
         else:
             title = "Error"
             icon = QMessageBox.Critical
             text = response
             ventanta_emergente_def(title, icon, text)
-
-        self.limpiar_ventana()
 
     def limpiar_ventana(self):
         checkboxes = self.findChildren(QCheckBox)
@@ -904,7 +907,7 @@ class Bodywindow(QMainWindow):
 
     def copy(self):
         intentado = True
-        id_banca = id_banca = sesion_usuario['id_banca']
+        id_banca = sesion_usuario['id_banca']
         id_sucursal = sesion_usuario["id_sucursal"]
         while True:
             respuesta_usuario, resultado_dialogo = ventana_emergente_con_input(
@@ -912,46 +915,7 @@ class Bodywindow(QMainWindow):
             )
             if resultado_dialogo == QDialog.Accepted:
                 # Aquí deberías realizar la lógica para copiar el ticket utilizando respuesta_usuario (el ID del ticket ingresado)
-                cursor = self.conexion.cursor()
-                cursor.execute("SELECT * FROM jugadas WHERE id_ticket = %s and id_sucursal = %s and id_banca = %s",
-                               (respuesta_usuario, id_sucursal, id_banca))
-                id_ticket = cursor.fetchall()
-                if id_ticket != []:
-                    for i in range(len(id_ticket)):
-                        jugada = (id_ticket[i][3])
-                        monto = (id_ticket[i][4])
-                        if len(jugada) == 2:
-                            item_text = f"{jugada} (Quiniela)"
-                            item_text1 = f"{monto}"
-                            item = QListWidgetItem(item_text)
-                            item1 = QListWidgetItem(item_text1)
-                            self.lista_montos.addItem(item1)
-                            self.lista_jugadas.addItem(item)
-                            self.check_balance(monto)
-                        elif len(jugada) == 5:
-                            item_text = f"{jugada} (Palé)"
-                            item_text1 = f"{monto}"
-                            item = QListWidgetItem(item_text)
-                            item1 = QListWidgetItem(item_text1)
-                            self.lista_montos.addItem(item1)
-                            self.lista_jugadas.addItem(item)
-                            self.check_balance(monto)
-                        elif len(jugada) == 8:
-                            item_text = f"{jugada} (Tripleta)"
-                            item_text1 = f"{monto}"
-                            item = QListWidgetItem(item_text)
-                            item1 = QListWidgetItem(item_text1)
-                            self.lista_montos.addItem(item1)
-                            self.lista_jugadas.addItem(item)
-                            self.check_balance(monto)
-                    break
-                else:
-                    if intentado:
-                        title = "ERROR"
-                        icon = QMessageBox.Critical
-                        text = f"el ticket con el id: {respuesta_usuario} es invalido".upper(
-                        )
-                        ventanta_emergente_def(title, icon, text)
+                copy_config(respuesta_usuario, id_banca, id_sucursal)
             else:
                 break
 

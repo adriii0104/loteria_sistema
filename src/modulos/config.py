@@ -1,5 +1,5 @@
 import requests
-from dict import sesion_usuario, urls
+from modulos.dict import sesion_usuario, urls
 
 
 def connection():
@@ -12,7 +12,6 @@ def connection():
                 return False
     except requests.exceptions.ConnectionError:
         return False
-
 
 def login(email_data, password_data):
     url = 'http://127.0.0.1:5000/CS8QHsIdoOXUGTAHtZTZeg+YteqGd5qStna8r/UgWxQ'
@@ -34,7 +33,7 @@ def login(email_data, password_data):
         if valido == "admin":
 
             log = "admin"
-            
+
             return log
         elif valido == True:
             # Actualiza la sesión del usuario con información de la respuesta
@@ -59,11 +58,11 @@ def login(email_data, password_data):
 
 
 def register(
-             nombre_banca_data, prefijo_data, dia_pago_data, monto_pago_data, tipo_software_data,
-             pago_pale_data, pago_tripleta_data, puntos_primera_data, puntos_segunda_data, puntos_tercera_data,
-             nombre_dueno_data, nombre_sucursal_data, telefono_principal_data, email_principal_data, usuario_data,
-             password_data, id_banca_data, id_sucursal_data
-             ):
+    nombre_banca_data, prefijo_data, dia_pago_data, monto_pago_data, tipo_software_data,
+    pago_pale_data, pago_tripleta_data, puntos_primera_data, puntos_segunda_data, puntos_tercera_data,
+    nombre_dueno_data, nombre_sucursal_data, telefono_principal_data, email_principal_data, usuario_data,
+    password_data, id_banca_data, id_sucursal_data
+):
 
     url = 'http://127.0.0.1:5000/user/register/auto'
 
@@ -120,11 +119,6 @@ def registrar_sucursal_data(id_banca):
         print(respuesta)
 
 
-
-
-
-
-
 def count_numbers(id_banca, id_sucursal):
 
     url = 'http://127.0.0.1:5000/Hycbkxuhd/sykksxnns/ywfkxshkm/mbw'
@@ -139,15 +133,15 @@ def count_numbers(id_banca, id_sucursal):
         respuesta = response.json()
 
         if respuesta['response'] == True:
-            response=respuesta['response']
-            mas_jugado=respuesta['numero_mas_jugado']
-            cantidad=respuesta['cantidad_mas_jugado']
+            response = respuesta['response']
+            mas_jugado = respuesta['numero_mas_jugado']
+            cantidad = respuesta['cantidad_mas_jugado']
             return response, mas_jugado, cantidad
         else:
             return False
-        
 
-def procesar_numeros(len_monto, selected_lotteries, total_jugado, amounts, chosen_numbers, selected, checkbox_selected):
+
+def procesar_numeros(len_monto, selected_lotteries, total_jugado, amounts, chosen_numbers, selected, checkbox_selected, resultados):
     data = {
         'nombre_banca': sesion_usuario['nombre_banca'],
         'id_banca': sesion_usuario['id_banca'],
@@ -158,8 +152,8 @@ def procesar_numeros(len_monto, selected_lotteries, total_jugado, amounts, chose
         'amount': amounts,
         'chosen_numbers': chosen_numbers,
         'checkbox_selected_names': selected,
-        'checkbox_selected_lotteries': checkbox_selected 
-
+        'checkbox_selected_lotteries': checkbox_selected,
+        'resultados': resultados
     }
     url = 'http://127.0.0.1:5000/data/numbers'
 
@@ -167,10 +161,9 @@ def procesar_numeros(len_monto, selected_lotteries, total_jugado, amounts, chose
 
     if response.status_code == 200:
         respuesta = response.json()
-        print(respuesta['error'])
 
         if respuesta['response'] == True and respuesta['error'] == False:
-            return True
+            return True, respuesta['idticket']
         elif respuesta['error'] == True:
             return respuesta['response']
         else:
@@ -178,3 +171,14 @@ def procesar_numeros(len_monto, selected_lotteries, total_jugado, amounts, chose
         
 
 
+def copy_config(id_ticket, id_banca, id_sucursal):
+    # Concatena el parámetro id_banca a la URL
+    
+    url = f'http://127.0.0.1:5000/copy?id_ticket={id_ticket}&id_banca={id_banca}&id_sucursal={id_sucursal}'
+    
+    response = requests.get(url)
+    
+    if response.status_code == 200:
+        print(response.json())
+    else:
+        print(f"Error: {response.status_code}")
