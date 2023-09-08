@@ -2,16 +2,33 @@ import requests
 from modulos.dict import sesion_usuario, urls
 
 
+def notification():
+    url = 'http://127.0.0.1:5000/notifications'
+
+    response = requests.get(url)
+
+    if response.status_code == 200:
+        respuesta = response.json()
+        if respuesta['msj'] is None:
+            return False
+        else:
+            return respuesta['msj']
+
+
 def connection():
+    status = 0
     try:
-        for i in urls:
-            response = requests.get(i)
+        for i, z in enumerate(urls):
+            response = requests.get(z)
             if response.status_code == 200:
-                return True
-            else:
-                return False
+                status += 1
+        if status == 7:
+            return True
+        else:
+            return False
     except requests.exceptions.ConnectionError:
         return False
+
 
 def login(email_data, password_data):
     url = 'http://127.0.0.1:5000/CS8QHsIdoOXUGTAHtZTZeg+YteqGd5qStna8r/UgWxQ'
@@ -161,24 +178,73 @@ def procesar_numeros(len_monto, selected_lotteries, total_jugado, amounts, chose
 
     if response.status_code == 200:
         respuesta = response.json()
+        print(respuesta)
 
         if respuesta['response'] == True and respuesta['error'] == False:
             return True, respuesta['idticket']
         elif respuesta['error'] == True:
-            return respuesta['response']
+            return False, respuesta['response']
         else:
-            return False
-        
+            return False, "Error"
 
 
 def copy_config(id_ticket, id_banca, id_sucursal):
     # Concatena el parámetro id_banca a la URL
-    
+
     url = f'http://127.0.0.1:5000/copy?id_ticket={id_ticket}&id_banca={id_banca}&id_sucursal={id_sucursal}'
-    
+
     response = requests.get(url)
-    
+
     if response.status_code == 200:
-        print(response.json())
+        respuesta = response.json()
+        if respuesta['data'] is None:
+            return False
+        else:
+            return respuesta['jugadas'], respuesta['montos']
     else:
         print(f"Error: {response.status_code}")
+
+
+def cobrar_ticket(id_ticket):
+    try:
+        data = {
+            'pago_punto': sesion_usuario.get('pago_punto'),
+            'pago_tripleta': sesion_usuario.get('pago_tripleta'),
+            'puntos_primera': sesion_usuario.get('puntos_primera'),
+            'puntos_segunda': sesion_usuario.get('puntos_segunda'),
+            'puntos_tercera': sesion_usuario.get('puntos_tercera'),
+            'id_banca': sesion_usuario.get('id_banca'),
+            'id_sucursal': sesion_usuario.get('id_sucursal'),
+            'id_ticket': id_ticket
+        }
+
+        url = 'http://127.0.0.1:5000/verificar_ganadores/route/post'
+
+        response = requests.post(url, json=data, verify=False)
+
+        if response.status_code == 200:
+            respuesta = response.json()
+            if respuesta is not None:
+                return respuesta
+    except Exception as e:
+        print(e)
+
+
+
+def eliminar_ticket(id_ticket):
+    try:
+        url = 'http://127.0.0.1:5000/tickets'  # Reemplaza esto con la URL correcta para eliminar un ticket
+
+        data = {
+            'id_ticket': id_ticket, 'id_banca': sesion_usuario['id_banca'], 'id_sucursal': sesion_usuario['id_sucursal']
+        }
+
+        response = requests.post(url, json=data, verify=False)
+
+        if response.status_code == 200:
+            respuesta = response.json()
+            return respuesta
+        else:
+            return False
+    except Exception as e:
+        return False
